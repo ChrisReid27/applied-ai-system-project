@@ -29,6 +29,73 @@ Some prompts to answer:
 
 You can include a simple diagram or bullet list if helpful.
 
+Songs:
+Songs in my system uses genre and mood as categories and numeric values will include energy, tempo/bpm, valence, danceability, and acousticness. Other secondary features will include the song title and song artist which won't be used in scoring. Mood and genre will be higher weighted than the numeric value categories. Every song in the catalog stores the dat like this:
+
+| Feature | Type | Description |
+|---|---|---|
+| `genre` | categorical | Broad style label (pop, lofi, rock, etc.) |
+| `mood` | categorical | Emotional tone (chill, intense, happy, etc.) |
+| `energy` | numeric 0–1 | How energetic or calm the track feels |
+| `tempo_bpm` | numeric | Beats per minute |
+| `valence` | numeric 0–1 | Musical positivity (high = upbeat, low = somber) |
+| `danceability` | numeric 0–1 | How suitable the track is for dancing |
+| `acousticness` | numeric 0–1 | How acoustic vs. electronic the track sounds |
+
+---
+
+User profile:
+The UserProfile will store the listener's target preferences for every scored feature:
+
+- `preferred_genre` — the genre they want to hear
+- `preferred_mood` — the mood they are looking for right now
+- `preferred_energy` — their ideal energy level (0.0 to 1.0)
+- `preferred_tempo_bpm` — their ideal tempo in beats per minute
+- `preferred_valence` — how positive or somber they want the music
+- `preferred_danceability` — how danceable they want the track
+- `preferred_acousticness` — how acoustic vs. produced they prefer
+
+---
+
+Scoring Rule for Recommender:
+The scoring rule for my recommender will compute a similarity score between 0 and 1 for each song.
+
+**Categorical features** (genre, mood):
+- Score = `1.0` if the song matches the user preference, `0.0` otherwise.
+
+**Numeric features** (energy, valence, danceability, acousticness):
+```
+similarity = 1 - |song_value - user_value|
+```
+
+**Tempo** (scaled by catalog range):
+```
+tempo_score = 1 - (|song_tempo - user_tempo| / (max_tempo - min_tempo))
+```
+
+All scores are clamped to the range `[0, 1]`.
+
+**Final weighted score:**
+```
+score = 0.20 × genre
+      + 0.25 × mood
+      + 0.15 × energy
+      + 0.15 × tempo
+      + 0.10 × valence
+      + 0.10 × danceability
+      + 0.05 × acousticness
+```
+
+Mood receives the highest weight because it best reflects the listener's current intent (focus, chill, intense). Genre receives the second highest weight as a strong taste signal. Numeric features fine-tune the ranking within matching mood and genre groups.
+
+---
+
+Ranking rule (the list):
+After scoring all songs, the recommender:
+1. Sorts songs from highest score to lowest score
+2. Returns the top N results (default: 5)
+3. Excludes songs already in the user's history (if provided)
+
 ---
 
 ## Getting Started
