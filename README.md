@@ -98,6 +98,27 @@ After scoring all songs, the recommender:
 
 ---
 
+Potential Biases:
+1. Hard category matching can create unfair cutoffs
+Binary scoring for genre and mood (exact match = 1, else 0), can over-penalize songs that are close but not identical, like adjacent moods or hybrid genres.
+2. Program may over-prioritize genre/mood categories.
+Mood and genre together contribute 45% of total score, and are explicitly prioritized. That can lock users into narrow identity buckets and reduce their exposure to new styles and songs outside their established tastes..
+3. Small catalog representation bias
+The catalog is small so if genre/mood coverage is uneven, the system may systematically under-recommend underrepresented styles, independent of user preference quality.
+4. Top-N ranking without diversity controls
+Pure score sorting and returning top N can produce repetitive recommendations from the same cluster (same mood/genre profile), reducing fairness across catalog segments.
+5. Labeling bias in subjective features
+Mood, valence, and even genre labels depend on how songs were labeled. If labels reflect one cultural perspective, recommendations will inherit that perspective.
+6. Range-based tempo scaling can bias outcomes by dataset composition
+Tempo similarity depends on min/max tempo in the catalog. If catalog range shifts, scoring behavior changes, which can advantage/disadvantage certain tempo preferences.
+
+---
+
+## Results
+![alt text](<../../../Pictures/Screenshots/Screenshot 2026-03-18 115405.png>)
+
+---
+
 ## Getting Started
 
 ### Setup
