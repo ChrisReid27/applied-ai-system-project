@@ -6,55 +6,27 @@
 
 ---
 
-## 2. Intended Use  
+## 2. Intended Use    
 
-Describe what your recommender is designed to do and who it is for. 
-
-Prompts:  
-
-- What kind of recommendations does it generate  
-- What assumptions does it make about the user  
-- Is this for real users or classroom exploration  
+MTD is a class project meant to match songs to user music taste via their user profiles and explore how recommenders work. It assumes the user has knowledge on their tastes for genre, preferred mood, whether they like acoutics or not, etc.
 
 ---
 
 ## 3. How the Model Works  
 
-Explain your scoring approach in simple language.  
-
-Prompts:  
-
-- What features of each song are used (genre, energy, mood, etc.)  
-- What user preferences are considered  
-- How does the model turn those into a score  
-- What changes did you make from the starter logic  
-
-Avoid code here. Pretend you are explaining the idea to a friend who does not program.
+Avoid code here. Pretend you are explaining the idea to a friend who does not program. Features included for scoring is genre, mood, energy, tempo/bpm, valence, and if you can dance to the song or not. User's preference for acoustics is considered but is also a number value for songs, too. Each feature has a weight from 0-1 that gets put in an math algorithm to calculate the best songs to recommend users with the highest getting listed first. From starter logic to now I changed a lot, mostly changing how songs get scored based on the features listed before. I also added in explanations that show how your top song got recommended to you and why others were ranked lower.
 
 ---
 
 ## 4. Data  
 
-Describe the dataset the model uses.  
-
-Prompts:  
-
-- How many songs are in the catalog  
-- What genres or moods are represented  
-- Did you add or remove data  
-- Are there parts of musical taste missing in the dataset  
+There's 18 songs in MTD's catalog. Genre's include pop, lofi, ambient, rock, jazz, synthwave, metal, reggae, classical, hip hop, country, edm, folk, r&b, and indie pop. I added in 8 songs to the original 10. Acoustic music is barely in my catalog.
 
 ---
 
 ## 5. Strengths  
 
-Where does your system seem to work well  
-
-Prompts:  
-
-- User types for which it gives reasonable results  
-- Any patterns you think your scoring captures correctly  
-- Cases where the recommendations matched your intuition  
+MTD works reliably when the genre and mood match the user's tastes. It is good at distinguishing between energized music and more calm music. Users who know what they like will be fine using MTD. Mood weighting captures what listeners want to listen to in the moment since vibes can change every day.
 
 ---
 
@@ -72,23 +44,10 @@ I checked if the recommender was behaving as expected by running three different
 
 ## 8. Future Work  
 
-Ideas for how you would improve the model next.  
-
-Prompts:  
-
-- Additional features or preferences  
-- Better ways to explain recommendations  
-- Improving diversity among the top results  
-- Handling more complex user tastes  
+I would add more songs and genres and add more acoustic songs specifically since it's so absent from the catalog right now. I could also generate more formatted sentences for why a song got recommended or not instead of just showing scoring process values. Overweighting could be fine tuned out of MTD so that too. Maybe relax the genre-mood matching so their's more specificity to the song recs for users.
 
 ---
 
 ## 9. Personal Reflection  
-
-A few sentences about your experience.  
-
-Prompts:  
-
-- What you learned about recommender systems  
-- Something unexpected or interesting you discovered  
-- How this changed the way you think about music recommendation apps  
+  
+Something major I learned during this process is that the valuing of features is the most important part and the balncing of them. Overweighting a certain stat was skewing the system throughout the project, basically the main issue to be honest. A.I. helped greatly, it helped to plan how song score would be calculated and helped me clean up my functions during the part where you had to make them pythonic and organized. This project made me understand Spotify a lot more and also how they would get the data for things like Wrapped, which every app like this does now. Most of these systems change even more if the user actually listens to a song through their system, while this project just does the recs part.

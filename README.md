@@ -2,32 +2,13 @@
 
 ## Project Summary
 
-In this project you will build and explain a small music recommender system.
+This project is a classroom music recommender simulation that ranks songs based on a user's taste profile.
 
-Your goal is to:
-
-- Represent songs and a user "taste profile" as data
-- Design a scoring rule that turns that data into recommendations
-- Evaluate what your system gets right and wrong
-- Reflect on how this mirrors real world AI recommenders
-
-Replace this paragraph with your own summary of what your version does.
+My system scores songs using genre, mood, energy, tempo, valence, danceability, and acousticness. It uses weighted similarity, then returns the top recommendations with score explanations so the ranking is easy to understand. I also tested multiple user profiles, including conflicting and edge-case preferences, to check where the recommender works well and where bias appears.
 
 ---
 
 ## How The System Works
-
-Explain your design in plain language.
-
-Some prompts to answer:
-
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
-
-You can include a simple diagram or bullet list if helpful.
 
 Songs:
 Songs in my system uses genre and mood as categories and numeric values will include energy, tempo/bpm, valence, danceability, and acousticness. Other secondary features will include the song title and song artist which won't be used in scoring. Mood and genre will be higher weighted than the numeric value categories. Every song in the catalog stores the dat like this:
@@ -163,11 +144,7 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Experiments You Tried
 
-Use this section to document the experiments you ran. For example:
-
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
+I shifted weights by doubling the energy value and halfing the genre value. See model_card.md number 6. Limitations and Biases.
 
 ---
 
@@ -205,6 +182,8 @@ Combines reflection and model card framing from the Module 3 guidance. :contentR
 
 ```markdown
 # 🎧 Model Card - Music Recommender Simulation
+
+**See model_card.md for answers + 9. Personal Reflection**
 
 ## 1. Model Name
 
