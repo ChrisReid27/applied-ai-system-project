@@ -52,5 +52,41 @@
     "title": "Reggaeton Party Mapping",
     "text": "Reggaeton and party playlists usually target high danceability, mid-high energy, and positive valence for social settings.",
     "tags": ["context:party", "genre:reggaeton", "mood:party", "energy:midhigh", "danceability:high", "valence:high"]
+  },
+  {
+    "id": "doc-10",
+    "title": "EDM Festival Energy",
+    "text": "EDM requests usually want euphoric mood, very high energy, strong danceability, and a fast club tempo.",
+    "tags": ["context:club", "genre:edm", "mood:euphoric", "mood:energetic", "energy:high", "danceability:high"]
+  },
+  {
+    "id": "doc-11",
+    "title": "Indie Pop Glow",
+    "text": "Indie pop often sits between happy and dreamy, with moderate energy, warm tone, and a lighter groove than mainstream pop.",
+    "tags": ["genre:indie pop", "mood:dreamy", "mood:happy", "energy:mid", "danceability:mid"]
+  },
+  {
+    "id": "doc-12",
+    "title": "Hip Hop Momentum",
+    "text": "Hip hop recommendations usually benefit from confident mood, strong groove, and a beat-forward rhythm that stays grounded.",
+    "tags": ["genre:hip hop", "mood:confident", "energy:midhigh", "danceability:high"]
+  },
+  {
+    "id": "doc-13",
+    "title": "Synthwave Neon Flow",
+    "text": "Synthwave works well for driving, nostalgia, and steady mid-high energy with a glossy electronic feel.",
+    "tags": ["genre:synthwave", "context:driving", "mood:nostalgic", "energy:midhigh"]
+  },
+  {
+    "id": "doc-14",
+    "title": "Lofi Study Session",
+    "text": "Lofi should feel focused and calm, with lower energy, gentle percussion, and a cozy late-night atmosphere.",
+    "tags": ["genre:lofi", "context:focus", "mood:focused", "mood:chill", "energy:low", "acousticness:high"]
+  },
+  {
+    "id": "doc-15",
+    "title": "Upbeat Pop Appeal",
+    "text": "Pop tends to work best with upbeat hooks, positive valence, and an accessible radio-friendly energy profile.",
+    "tags": ["genre:pop", "mood:happy", "mood:empowered", "energy:high", "valence:high"]
   }
 ]

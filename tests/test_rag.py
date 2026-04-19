@@ -1,11 +1,14 @@
 from src.rag import (
     build_grounded_explanation,
     detect_cluster_warning,
+    discovery_mode_requested,
     infer_profile_from_text,
     load_corpus,
     retrieve_docs,
+    retrieve_song_grounding_docs,
     select_bridge_recommendation,
 )
+from src.recommender import load_songs, recommend_songs
 
 
 def test_infer_profile_from_text_extracts_genre_and_defaults():
@@ -53,6 +56,32 @@ def test_build_grounded_explanation_mentions_sources():
     assert "Grounded by" in explanation
 
 
+def test_retrieve_song_grounding_docs_uses_song_specific_tags():
+    docs = load_corpus()
+    edm_docs = retrieve_song_grounding_docs(
+        "i want some edm",
+        {"title": "Voltage Bloom", "genre": "edm", "mood": "euphoric"},
+        docs,
+        k=2,
+    )
+    lofi_docs = retrieve_song_grounding_docs(
+        "i want some edm",
+        {"title": "Focus Flow", "genre": "lofi", "mood": "focused"},
+        docs,
+        k=2,
+    )
+
+    assert edm_docs[0].title != lofi_docs[0].title
+    assert any("EDM" in doc.title or "Workout" in doc.title for doc in edm_docs)
+    assert any("Focus" in doc.title or "Lofi" in doc.title or "Calm" in doc.title for doc in lofi_docs)
+
+
+def test_discovery_mode_requested_recognizes_opt_in_language():
+    assert discovery_mode_requested("surprise me with discovery mode")
+    assert discovery_mode_requested("take me somewhere new")
+    assert not discovery_mode_requested("i want some edm")
+
+
 def test_select_bridge_recommendation_returns_outside_cluster_song():
     songs = [
         {"id": 1, "title": "One", "genre": "pop", "mood": "happy", "energy": 0.9, "tempo_bpm": 120, "valence": 0.8, "danceability": 0.8, "acousticness": 0.2},
@@ -85,3 +114,16 @@ def test_infer_profile_from_text_handles_new_genre_and_mood_keywords():
     assert prefs["genre"] == "reggaeton"
     assert prefs["mood"] == "party"
     assert float(prefs["danceability"]) >= 0.85
+
+
+def test_infer_profile_from_text_treats_edm_as_high_energy_dance_music():
+    songs = load_songs("data/songs.csv")
+    prefs, _ = infer_profile_from_text("i want some edm", songs)
+    recs = recommend_songs(prefs, songs, k=3)
+
+    assert prefs["genre"] == "edm"
+    assert prefs["mood"] in {"euphoric", "energetic"}
+    assert float(prefs["energy"]) >= 0.9
+    assert float(prefs["danceability"]) >= 0.85
+    assert recs[0][0]["genre"] == "edm"
+    assert recs[0][0]["title"] in {"Voltage Bloom", "365", "Blessings", "Golden"}

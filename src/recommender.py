@@ -48,26 +48,26 @@ class Recommender:
 
         if song.genre == user.favorite_genre:
             score += 1.0
-            reasons.append("genre match (+1.0)")
+            reasons.append("it matches the genre you asked for (+1.0)")
         else:
-            reasons.append("genre mismatch (+0.0)")
+            reasons.append("the genre is a little different (+0.0)")
 
         if song.mood == user.favorite_mood:
             score += 2.5
-            reasons.append("mood match (+2.5)")
+            reasons.append("the mood lines up with what you want (+2.5)")
         else:
-            reasons.append("mood mismatch (+0.0)")
+            reasons.append("the mood is not an exact match (+0.0)")
 
         energy_similarity = self._clamp01(1.0 - abs(song.energy - user.target_energy))
         energy_points = 3.0 * energy_similarity
         score += energy_points
-        reasons.append(f"energy similarity {energy_similarity:.2f} (+{energy_points:.2f})")
+        reasons.append(f"it is close to your target energy ({energy_similarity:.2f}, +{energy_points:.2f})")
 
         acoustic_target = 0.8 if user.likes_acoustic else 0.2
         acoustic_similarity = self._clamp01(1.0 - abs(song.acousticness - acoustic_target))
         acoustic_points = 0.5 * acoustic_similarity
         score += acoustic_points
-        reasons.append(f"acousticness similarity {acoustic_similarity:.2f} (+{acoustic_points:.2f})")
+        reasons.append(f"the acoustic feel also fits ({acoustic_similarity:.2f}, +{acoustic_points:.2f})")
 
         return score, reasons
 
@@ -81,7 +81,9 @@ class Recommender:
 
     def explain_recommendation(self, user: UserProfile, song: Song) -> str:
         score, reasons = self._score_song(user, song)
-        return f"Score {score:.2f}: " + "; ".join(reasons)
+        primary_reason = reasons[0] if reasons else "it is a reasonable match"
+        extra_reason = f" Also, {reasons[1].rstrip('.')}." if len(reasons) > 1 else ""
+        return f"This song scores {score:.2f} because {primary_reason}.{extra_reason}"
 
 def load_songs(csv_path: str) -> List[Dict]:
     """
@@ -142,24 +144,25 @@ def _score_song_dict(
     if preferred_genre is not None:
         if song.get("genre") == preferred_genre:
             score += weights["genre"]
-            reasons.append(f"genre match (+{weights['genre']:.1f})")
+            reasons.append(f"it matches the genre you asked for (+{weights['genre']:.1f})")
         else:
-            reasons.append("genre mismatch (+0.0)")
+            reasons.append("the genre is a little different (+0.0)")
 
     preferred_mood = user_prefs.get("mood")
     if preferred_mood is not None:
         if song.get("mood") == preferred_mood:
             score += weights["mood"]
-            reasons.append(f"mood match (+{weights['mood']:.1f})")
+            reasons.append(f"the mood lines up with what you want (+{weights['mood']:.1f})")
         else:
-            reasons.append("mood mismatch (+0.0)")
+            reasons.append("the mood is not an exact match (+0.0)")
 
     for feature in ["energy", "valence", "danceability", "acousticness"]:
         if feature in user_prefs and feature in song:
             similarity = _clamp01(1.0 - abs(float(song[feature]) - float(user_prefs[feature])))
             points = similarity * weights[feature]
             score += points
-            reasons.append(f"{feature} similarity {similarity:.2f} (+{points:.2f})")
+            readable_feature = feature.replace("_", " ")
+            reasons.append(f"its {readable_feature} is close to your target ({similarity:.2f}, +{points:.2f})")
 
     if "tempo_bpm" in user_prefs and "tempo_bpm" in song:
         if min_tempo is not None and max_tempo is not None and max_tempo > min_tempo:
@@ -172,7 +175,7 @@ def _score_song_dict(
             tempo_similarity = _clamp01(1.0 - abs(float(song["tempo_bpm"]) - float(user_prefs["tempo_bpm"])) / 200.0)
         tempo_points = tempo_similarity * weights["tempo_bpm"]
         score += tempo_points
-        reasons.append(f"tempo similarity {tempo_similarity:.2f} (+{tempo_points:.2f})")
+        reasons.append(f"the tempo fits your request ({tempo_similarity:.2f}, +{tempo_points:.2f})")
 
     return score, reasons
 

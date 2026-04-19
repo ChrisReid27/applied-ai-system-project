@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, Iterable, List, Sequence, Tuple
 
-from .rag import build_grounded_explanation, infer_profile_from_text, retrieve_docs
+from .rag import build_grounded_explanation, infer_profile_from_text, load_corpus, retrieve_song_grounding_docs
 from .recommender import load_songs, recommend_songs
 
 
@@ -43,6 +43,7 @@ def evaluate_baseline_stability(songs: Sequence[Dict], prompts: Dict[str, str] |
 def evaluate_rag_explanations(songs: Sequence[Dict], prompts: Dict[str, str] | None = None, k: int = 5) -> Dict[str, List[str]]:
     prompt_map = prompts or PROMPT_SET
     explanations: Dict[str, List[str]] = {}
+    corpus = load_corpus()
 
     for name, user_text in prompt_map.items():
         user_prefs, profile_docs = infer_profile_from_text(user_text, songs)
@@ -50,8 +51,7 @@ def evaluate_rag_explanations(songs: Sequence[Dict], prompts: Dict[str, str] | N
         prompt_explanations: List[str] = []
 
         for song, score, reasons in recs:
-            query = f"{song['genre']} {song['mood']} {user_text}"
-            docs = retrieve_docs(query, profile_docs, k=2)
+            docs = retrieve_song_grounding_docs(user_text, song, corpus, k=2)
             prompt_explanations.append(build_grounded_explanation(song, score, reasons, docs))
 
         explanations[name] = prompt_explanations
@@ -62,6 +62,7 @@ def evaluate_rag_explanations(songs: Sequence[Dict], prompts: Dict[str, str] | N
 def compare_baseline_vs_rag(songs: Sequence[Dict], prompts: Dict[str, str] | None = None, k: int = 5) -> Dict[str, PromptResult]:
     prompt_map = prompts or PROMPT_SET
     report: Dict[str, PromptResult] = {}
+    corpus = load_corpus()
 
     for name, user_text in prompt_map.items():
         user_prefs, profile_docs = infer_profile_from_text(user_text, songs)
@@ -70,8 +71,7 @@ def compare_baseline_vs_rag(songs: Sequence[Dict], prompts: Dict[str, str] | Non
 
         rag_explanations: List[str] = []
         for song, score, reasons in baseline_recs:
-            query = f"{song['genre']} {song['mood']} {user_text}"
-            docs = retrieve_docs(query, profile_docs, k=2)
+            docs = retrieve_song_grounding_docs(user_text, song, corpus, k=2)
             rag_explanations.append(build_grounded_explanation(song, score, reasons, docs))
 
         report[name] = {

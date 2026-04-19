@@ -49,6 +49,146 @@ _TOKEN_SYNONYMS = {
 }
 
 
+_GENRE_PRESETS = {
+    "edm": {
+        "mood": "euphoric",
+        "energy": 0.92,
+        "danceability": 0.90,
+        "valence": 0.78,
+        "acousticness": 0.06,
+        "tempo_bpm": 128.0,
+    },
+    "pop": {
+        "mood": "happy",
+        "energy": 0.82,
+        "danceability": 0.82,
+        "valence": 0.80,
+        "acousticness": 0.18,
+        "tempo_bpm": 116.0,
+    },
+    "indie pop": {
+        "mood": "dreamy",
+        "energy": 0.68,
+        "danceability": 0.74,
+        "valence": 0.68,
+        "acousticness": 0.28,
+        "tempo_bpm": 112.0,
+    },
+    "hip hop": {
+        "mood": "confident",
+        "energy": 0.80,
+        "danceability": 0.86,
+        "valence": 0.62,
+        "acousticness": 0.12,
+        "tempo_bpm": 96.0,
+    },
+    "r&b": {
+        "mood": "romantic",
+        "energy": 0.58,
+        "danceability": 0.74,
+        "valence": 0.70,
+        "acousticness": 0.42,
+        "tempo_bpm": 94.0,
+    },
+    "reggaeton": {
+        "mood": "party",
+        "energy": 0.86,
+        "danceability": 0.88,
+        "valence": 0.76,
+        "acousticness": 0.08,
+        "tempo_bpm": 128.0,
+    },
+    "lofi": {
+        "mood": "chill",
+        "energy": 0.34,
+        "danceability": 0.58,
+        "valence": 0.58,
+        "acousticness": 0.84,
+        "tempo_bpm": 80.0,
+    },
+    "ambient": {
+        "mood": "calm",
+        "energy": 0.20,
+        "danceability": 0.30,
+        "valence": 0.46,
+        "acousticness": 0.95,
+        "tempo_bpm": 60.0,
+    },
+    "rock": {
+        "mood": "intense",
+        "energy": 0.88,
+        "danceability": 0.60,
+        "valence": 0.48,
+        "acousticness": 0.12,
+        "tempo_bpm": 144.0,
+    },
+    "metal": {
+        "mood": "aggressive",
+        "energy": 0.96,
+        "danceability": 0.44,
+        "valence": 0.34,
+        "acousticness": 0.04,
+        "tempo_bpm": 160.0,
+    },
+    "jazz": {
+        "mood": "relaxed",
+        "energy": 0.40,
+        "danceability": 0.56,
+        "valence": 0.66,
+        "acousticness": 0.86,
+        "tempo_bpm": 92.0,
+    },
+    "folk": {
+        "mood": "nostalgic",
+        "energy": 0.44,
+        "danceability": 0.54,
+        "valence": 0.62,
+        "acousticness": 0.84,
+        "tempo_bpm": 88.0,
+    },
+    "country": {
+        "mood": "reflective",
+        "energy": 0.52,
+        "danceability": 0.64,
+        "valence": 0.60,
+        "acousticness": 0.68,
+        "tempo_bpm": 104.0,
+    },
+    "classical": {
+        "mood": "serene",
+        "energy": 0.18,
+        "danceability": 0.24,
+        "valence": 0.58,
+        "acousticness": 0.96,
+        "tempo_bpm": 66.0,
+    },
+    "reggae": {
+        "mood": "carefree",
+        "energy": 0.58,
+        "danceability": 0.72,
+        "valence": 0.76,
+        "acousticness": 0.52,
+        "tempo_bpm": 92.0,
+    },
+    "synthwave": {
+        "mood": "nostalgic",
+        "energy": 0.74,
+        "danceability": 0.74,
+        "valence": 0.54,
+        "acousticness": 0.18,
+        "tempo_bpm": 112.0,
+    },
+    "psychedelic rock": {
+        "mood": "groovy",
+        "energy": 0.82,
+        "danceability": 0.70,
+        "valence": 0.66,
+        "acousticness": 0.24,
+        "tempo_bpm": 120.0,
+    },
+}
+
+
 def _normalize_tokens(tokens: Sequence[str]) -> List[str]:
     return [_TOKEN_SYNONYMS.get(token, token) for token in tokens]
 
@@ -208,6 +348,11 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
             prefs["genre"] = genre
             break
 
+    genre_preset = _GENRE_PRESETS.get(str(prefs.get("genre", "")))
+    if genre_preset:
+        for key, value in genre_preset.items():
+            prefs.setdefault(key, value)
+
     for mood in mood_keywords:
         if mood in text:
             prefs["mood"] = mood
@@ -234,6 +379,13 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
     elif "electronic" in text:
         prefs["acousticness"] = 0.20
 
+    if prefs.get("genre") in {"edm", "reggaeton"}:
+        prefs.setdefault("danceability", 0.90 if prefs["genre"] == "edm" else 0.88)
+        prefs.setdefault("tempo_bpm", 128.0)
+        prefs.setdefault("energy", 0.90 if prefs["genre"] == "edm" else 0.86)
+        prefs.setdefault("valence", 0.78 if prefs["genre"] == "edm" else 0.76)
+        prefs.setdefault("acousticness", 0.06 if prefs["genre"] == "edm" else 0.08)
+
     if any(word in text for word in ["happy", "euphoric", "upbeat", "party", "summer", "feel-good"]):
         prefs.setdefault("valence", 0.80)
     elif any(word in text for word in ["moody", "reflective", "sad", "heartbroken", "melancholic", "melancholy"]):
@@ -248,9 +400,45 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
     if "genre" not in prefs:
         prefs["genre"] = str(songs[0]["genre"]) if songs else "pop"
     if "mood" not in prefs:
-        prefs["mood"] = str(songs[0]["mood"]) if songs else "happy"
+        fallback_genre = str(prefs.get("genre", ""))
+        if fallback_genre in _GENRE_PRESETS:
+            prefs["mood"] = _GENRE_PRESETS[fallback_genre]["mood"]
+        else:
+            prefs["mood"] = str(songs[0]["mood"]) if songs else "happy"
 
     return prefs, retrieved
+
+
+def discovery_mode_requested(user_text: str) -> bool:
+    text = user_text.lower()
+    return any(
+        phrase in text
+        for phrase in [
+            "discovery mode",
+            "surprise me",
+            "explore",
+            "something different",
+            "something new",
+            "take me somewhere new",
+            "wildcard",
+        ]
+    )
+
+
+def retrieve_song_grounding_docs(
+    user_text: str,
+    song: Dict,
+    docs: Sequence[RagDocument],
+    k: int = 2,
+) -> List[RagDocument]:
+    query = f"{song.get('genre', '')} {song.get('mood', '')} {song.get('title', '')} {user_text}"
+    required_tag_prefixes = []
+    if song.get("genre"):
+        required_tag_prefixes.append(f"genre:{song['genre']}")
+    if song.get("mood"):
+        required_tag_prefixes.append(f"mood:{song['mood']}")
+
+    return retrieve_docs(query, docs, k=k, required_tag_prefixes=required_tag_prefixes)
 
 
 def detect_cluster_warning(recommendations: Sequence[Tuple[Dict, float, List[str]]]) -> Optional[str]:
@@ -322,9 +510,16 @@ def build_grounded_explanation(
     reasons: Sequence[str],
     retrieved_docs: Sequence[RagDocument],
 ) -> str:
-    base = f"Score {score:.2f}. " + "; ".join(reasons[:3])
+    if reasons:
+        main_reason = reasons[0].rstrip(".")
+        base = f"This is a strong fit because {main_reason}."
+        if len(reasons) > 1:
+            base += f" Also, {reasons[1].rstrip('.')}."
+    else:
+        base = "This is a strong fit."
+
     if not retrieved_docs:
-        return base
+        return base + f" (Score {score:.2f}.)"
 
     titles = ", ".join(doc.title for doc in retrieved_docs[:2])
-    return base + f" | Grounded by: {titles}."
+    return base + f" Grounded by: {titles}."
