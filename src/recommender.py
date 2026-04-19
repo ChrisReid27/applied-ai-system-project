@@ -161,8 +161,14 @@ def _score_song_dict(
             similarity = _clamp01(1.0 - abs(float(song[feature]) - float(user_prefs[feature])))
             points = similarity * weights[feature]
             score += points
-            readable_feature = feature.replace("_", " ")
-            reasons.append(f"its {readable_feature} is close to your target ({similarity:.2f}, +{points:.2f})")
+            if feature == "valence":
+                reasons.append(
+                    "the valence is close to what you seem to want to hear right now "
+                    f"({similarity:.2f}, +{points:.2f})"
+                )
+            else:
+                readable_feature = feature.replace("_", " ")
+                reasons.append(f"its {readable_feature} is close to your target ({similarity:.2f}, +{points:.2f})")
 
     if "tempo_bpm" in user_prefs and "tempo_bpm" in song:
         if min_tempo is not None and max_tempo is not None and max_tempo > min_tempo:

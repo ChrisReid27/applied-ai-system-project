@@ -88,5 +88,71 @@
     "title": "Upbeat Pop Appeal",
     "text": "Pop tends to work best with upbeat hooks, positive valence, and an accessible radio-friendly energy profile.",
     "tags": ["genre:pop", "mood:happy", "mood:empowered", "energy:high", "valence:high"]
+  },
+  {
+    "id": "doc-16",
+    "title": "Nostalgic Folk Warmth",
+    "text": "Nostalgic folk songs typically lean acoustic and intimate, with lower-to-mid energy, gentle rhythm, and reflective warmth suited for tracks like morning trail or campfire listening.",
+    "tags": ["genre:folk", "mood:nostalgic", "energy:lowmid", "acousticness:high", "valence:mid"]
+  },
+  {
+    "id": "doc-17",
+    "title": "Nostalgic R&B Flow",
+    "text": "Nostalgic R&B usually favors mellow groove, softer energy, and a warm emotional tone with moderate valence rather than party intensity.",
+    "tags": ["genre:r&b", "mood:nostalgic", "energy:low", "danceability:mid", "valence:mid", "acousticness:high"]
+  },
+  {
+    "id": "doc-18",
+    "title": "Metal Aggression Mapping",
+    "text": "Aggressive metal tracks usually prioritize very high energy, lower valence, and dense, forceful arrangements over dance-focused rhythm.",
+    "tags": ["genre:metal", "mood:aggressive", "energy:high", "valence:low", "danceability:low"]
+  },
+  {
+    "id": "doc-19",
+    "title": "Intense Rock Drive",
+    "text": "Intense rock recommendations often blend driving guitars with high energy and mid valence while staying less dance-forward than pop or club music.",
+    "tags": ["genre:rock", "mood:intense", "energy:high", "valence:mid", "danceability:midlow"]
+  },
+  {
+    "id": "doc-20",
+    "title": "Romantic Pop Blend",
+    "text": "Romantic pop tends to sit in a mid-energy space with warm vocal tone, moderate danceability, and positive-leaning valence.",
+    "tags": ["genre:pop", "mood:romantic", "energy:mid", "valence:midhigh", "danceability:mid"]
+  },
+  {
+    "id": "doc-21",
+    "title": "Romantic R&B Night",
+    "text": "Romantic R&B favors intimate grooves, softer dynamics, and smooth low-to-mid energy with a warm emotional profile.",
+    "tags": ["genre:r&b", "mood:romantic", "energy:lowmid", "valence:midhigh", "danceability:mid"]
+  },
+  {
+    "id": "doc-22",
+    "title": "Reflective Country Storytelling",
+    "text": "Reflective country songs emphasize storytelling, acoustic texture, and steady mid tempo with moderate energy and thoughtful mood.",
+    "tags": ["genre:country", "mood:reflective", "energy:mid", "acousticness:high", "valence:mid"]
+  },
+  {
+    "id": "doc-23",
+    "title": "Carefree Reggae Lift",
+    "text": "Carefree reggae works best with easy groove, sunny tone, and relaxed but steady rhythm in a mid-energy range.",
+    "tags": ["genre:reggae", "mood:carefree", "energy:mid", "valence:high", "danceability:mid"]
+  },
+  {
+    "id": "doc-24",
+    "title": "Serene Classical Space",
+    "text": "Serene classical listening favors very low energy, high acousticness, and calm emotional contour with minimal rhythmic emphasis.",
+    "tags": ["genre:classical", "mood:serene", "energy:low", "acousticness:high", "valence:mid"]
+  },
+  {
+    "id": "doc-25",
+    "title": "Relaxed Jazz Pocket",
+    "text": "Relaxed jazz usually pairs moderate warmth with gentle swing, low-to-mid energy, and organic instrumentation.",
+    "tags": ["genre:jazz", "mood:relaxed", "energy:lowmid", "acousticness:high", "valence:mid"]
+  },
+  {
+    "id": "doc-26",
+    "title": "Groovy Psychedelic Drift",
+    "text": "Groovy psychedelic rock often uses trippy textures, circular rhythms, and mid-high energy while keeping a colorful, exploratory mood.",
+    "tags": ["genre:psychedelic rock", "mood:groovy", "energy:midhigh", "valence:mid", "danceability:mid"]
   }
 ]

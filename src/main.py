@@ -56,7 +56,7 @@ def main() -> None:
         else:
             print(f"I heard you want {genre}.")
         if discovery_requested:
-            print("Discovery mode is on. I’ll include one exploratory pick if it helps.")
+            print("Discovery mode is on. I'll include one extra pick for you! I chose a target for you btw.")
         print("Here are the best matches I found:\n")
         print(f"{'='*50}\n")
 
@@ -70,7 +70,7 @@ def main() -> None:
 
         for index, (song, score, reasons) in enumerate(recommendations, start=1):
             docs = retrieve_song_grounding_docs(user_text, song, corpus, k=2)
-            explanation = build_grounded_explanation(song, score, reasons, docs)
+            explanation = build_grounded_explanation(song, score, reasons, docs, rank=index)
 
             print(f"{index}. {song['title']} by {song['artist']}")
             print(f"   {explanation}")

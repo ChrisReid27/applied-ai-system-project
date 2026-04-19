@@ -52,7 +52,6 @@ _TOKEN_SYNONYMS = {
     "wistful": "reflective",
     "hiphop": "hip hop",
     "hip-hop": "hip hop",
-    "rap": "hip hop",
     "r&b": "r&b",
     "rnb": "r&b",
     "reggaeton": "reggaeton",
@@ -68,27 +67,186 @@ _TOKEN_SYNONYMS = {
 }
 
 
+def _contains_any(text: str, phrases: Sequence[str]) -> bool:
+    return any(phrase in text for phrase in phrases)
+
+
+_WORKOUT_HINTS = ["workout", "gym", "run", "hype", "upbeat"]
+_PARTY_HINTS = ["party", "club", "dancefloor", "reggaeton"]
+_RAP_HINTS = ["rap", "rapping", "hip hop", "hiphop", "hip-hop", "trap", "drill"]
+_FOCUS_HINTS = ["focus", "study", "coding"]
+_WIND_DOWN_HINTS = ["sleep", "calm", "wind down", "recover"]
+_ACOUSTIC_HINTS = ["acoustic", "unplugged", "warm", "intimate"]
+_HIGH_VALENCE_HINTS = ["happy", "euphoric", "upbeat", "party", "summer", "feel-good"]
+_LOW_VALENCE_HINTS = ["moody", "reflective", "sad", "heartbroken", "melancholic", "melancholy"]
+_FAST_TEMPO_HINTS = ["fast", "high bpm", "quick"]
+_SLOW_TEMPO_HINTS = ["slow", "low bpm"]
+_DISCOVERY_PHRASES = [
+    "discovery mode",
+    "surprise me",
+    "explore",
+    "something different",
+    "something new",
+    "take me somewhere new",
+    "wildcard",
+    "adventurous pick",
+    "i dont know",
+    "dont know",
+    "do not know",
+    "doesnt matter",
+    "anything works",
+    "open to anything",
+]
+
+
 _GENRE_ALIASES = {
-    "edm": ["party", "club", "hyperpop", "hyper pop", "rave", "electronic", "electronic music", "dance music", 
-            "club music", "house", "techno", "trance", "dubstep", "future bass", "festival edm"],
-    "pop": ["pop music", "mainstream pop", "chart pop", "top 100", "radio", "popular", "catchy"],
-    "indie pop": ["independent", "indie", "indiepop", "alt pop", "alternative pop", 
-                  "bedroom pop", "dream pop", "bedroom", "twee"],
-    "hip hop": ["hip-hop", "hiphop", "rap", "rap music", "rap songs", "rapping", "rapper", 
-                "rappers", "trap", "drill", "boom bap"],
-    "r&b": ["rnb", "rhythm and blues", "neo soul", "neosoul", "soul", "contemporary r&b"],
-    "reggaeton": ["latin reggaeton", "latin trap", "dembow", "urbano"],
-    "lofi": ["lo fi", "lo-fi", "chillhop", "study beats", "beats to study", "study music"],
-    "ambient": ["ambient music", "soundscape", "drone", "meditation music", "background ambience"],
-    "rock": ["rock music", "alternative rock", "alt rock", "indie rock", "hard rock", "classic rock", "garage rock", "punk rock"],
-    "metal": ["heavy metal", "death metal", "black metal", "thrash metal", "metalcore"],
-    "jazz": ["jazz music", "smooth jazz", "bebop", "swing", "blues jazz"],
-    "folk": ["folk music", "indie folk", "americana", "singer songwriter", "bluegrass"],
-    "country": ["yeehaw", "country music", "country pop", "americana country", "outlaw country"],
-    "classical": ["classical music", "orchestral", "symphonic", "piano classical", "chamber music", "instrumental classical"],
-    "reggae": ["reggae music", "roots reggae", "dub", "ska", "dancehall"],
-    "synthwave": ["synth", "retrowave", "outrun", "vaporwave", "neon synth"],
-    "psychedelic rock": ["weird", "trippy", "psychedelic", "psych rock", "space rock", "prog rock"],
+    "edm": [
+        "party",
+        "club",
+        "hyperpop",
+        "hyper pop",
+        "rave",
+        "electronic",
+        "electronic music",
+        "dance music",
+        "club music",
+        "house",
+        "techno",
+        "trance",
+        "dubstep",
+        "future bass",
+        "festival edm",
+    ],
+    "pop": [
+        "pop music",
+        "mainstream pop",
+        "chart pop",
+        "top 100",
+        "radio",
+        "popular",
+        "catchy",
+    ],
+    "indie pop": [
+        "independent",
+        "indie",
+        "indiepop",
+        "alt pop",
+        "alternative pop",
+        "bedroom pop",
+        "dream pop",
+        "bedroom",
+        "twee",
+    ],
+    "hip hop": [
+        "hip-hop",
+        "hiphop",
+        "rap",
+        "rap music",
+        "rap songs",
+        "rapping",
+        "rapper",
+        "rappers",
+        "trap",
+        "drill",
+        "boom bap",
+    ],
+    "r&b": [
+        "rnb",
+        "rhythm and blues",
+        "neo soul",
+        "neosoul",
+        "soul",
+        "contemporary r&b",
+    ],
+    "reggaeton": [
+        "latin reggaeton",
+        "latin trap",
+        "dembow",
+        "urbano",
+    ],
+    "lofi": [
+        "lo fi",
+        "lo-fi",
+        "chillhop",
+        "study beats",
+        "beats to study",
+        "study music",
+    ],
+    "ambient": [
+        "ambient music",
+        "soundscape",
+        "drone",
+        "meditation music",
+        "background ambience",
+    ],
+    "rock": [
+        "rock music",
+        "alternative rock",
+        "alt rock",
+        "indie rock",
+        "hard rock",
+        "classic rock",
+        "garage rock",
+        "punk rock",
+    ],
+    "metal": [
+        "heavy metal",
+        "death metal",
+        "black metal",
+        "thrash metal",
+        "metalcore",
+    ],
+    "jazz": [
+        "jazz music",
+        "smooth jazz",
+        "bebop",
+        "swing",
+        "blues jazz",
+    ],
+    "folk": [
+        "folk music",
+        "indie folk",
+        "americana",
+        "singer songwriter",
+        "bluegrass",
+    ],
+    "country": [
+        "yeehaw",
+        "country music",
+        "country pop",
+        "americana country",
+        "outlaw country",
+    ],
+    "classical": [
+        "classical music",
+        "orchestral",
+        "symphonic",
+        "piano classical",
+        "chamber music",
+        "instrumental classical",
+    ],
+    "reggae": [
+        "reggae music",
+        "roots reggae",
+        "dub",
+        "ska",
+        "dancehall",
+    ],
+    "synthwave": [
+        "synth",
+        "retrowave",
+        "outrun",
+        "vaporwave",
+        "neon synth",
+    ],
+    "psychedelic rock": [
+        "weird",
+        "trippy",
+        "psychedelic",
+        "psych rock",
+        "space rock",
+        "prog rock",
+    ],
 }
 
 
@@ -242,6 +400,55 @@ _GENRE_PRESETS = {
 }
 
 
+_MOOD_ALIASES = {
+    "aggressive": ["angry", "rage", "fierce", "hard"],
+    "calm": ["peaceful", "tranquil", "soothing", "gentle"],
+    "carefree": ["easygoing", "weightless", "sunny"],
+    "chill": ["laid back", "laid-back", "mellow", "easy listening"],
+    "confident": ["bold", "boss", "self assured", "self-assured"],
+    "dark": ["brooding", "gloomy", "shadowy"],
+    "dramatic": ["cinematic", "theatrical"],
+    "dreamy": ["ethereal", "floaty", "hazy"],
+    "emotional": ["raw", "deep feelings", "vulnerable"],
+    "empowered": ["powerful", "motivated", "unstoppable"],
+    "energetic": ["high energy", "high-energy", "amp", "amped"],
+    "epic": ["anthemic", "larger than life", "larger-than-life"],
+    "euphoric": ["ecstatic", "blissful"],
+    "feel-good": ["feel good", "good vibes", "good mood"],
+    "focused": ["concentrate", "concentration", "productivity"],
+    "groovy": ["funky", "in the pocket"],
+    "happy": ["joyful", "cheerful", "positive"],
+    "haunting": ["spooky", "ghostly", "eerie"],
+    "heartbroken": ["breakup", "broken heart", "broken-hearted"],
+    "heroic": ["triumphant", "victorious"],
+    "hypnotic": ["trancey", "mesmerizing", "mesmerising"],
+    "intense": ["heavy", "adrenaline", "charged"],
+    "introspective": ["thoughtful", "self reflection", "self-reflection"],
+    "melancholic": ["sad", "blue", "down", "sorrowful", "depressed", "tearful"],
+    "moody": ["vibey", "sultry"],
+    "nostalgic": ["throwback", "retro feels", "bittersweet"],
+    "party": ["celebration", "lit", "turnt", "turn up", "turn-up"],
+    "playful": ["fun", "cheeky", "lighthearted", "light-hearted"],
+    "quirky": ["offbeat", "weird", "odd"],
+    "reflective": ["pensive", "contemplative"],
+    "relaxed": ["unwind", "wind down", "decompress"],
+    "romantic": ["love", "date night", "date-night"],
+    "serene": ["still", "airy", "quiet"],
+    "soulful": ["heartfelt", "warm soul"],
+    "summer": ["beach", "sunshine", "vacation", "vacay"],
+}
+
+
+_MOOD_ALIAS_LOOKUP = {
+    _normalize_for_matching(alias): canonical
+    for canonical, aliases in _MOOD_ALIASES.items()
+    for alias in aliases + [canonical]
+}
+
+
+_MOOD_MATCH_ORDER = sorted(_MOOD_ALIAS_LOOKUP, key=len, reverse=True)
+
+
 def _normalize_tokens(tokens: Sequence[str]) -> List[str]:
     return [_TOKEN_SYNONYMS.get(token, token) for token in tokens]
 
@@ -251,6 +458,14 @@ def _canonical_genre_from_text(text: str) -> Optional[str]:
     for alias in _GENRE_MATCH_ORDER:
         if alias in normalized:
             return _GENRE_ALIAS_LOOKUP[alias]
+    return None
+
+
+def _canonical_mood_from_text(text: str) -> Optional[str]:
+    normalized = _normalize_for_matching(text)
+    for alias in _MOOD_MATCH_ORDER:
+        if alias in normalized:
+            return _MOOD_ALIAS_LOOKUP[alias]
     return None
 
 
@@ -361,48 +576,6 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
 
     text = _normalize_for_matching(user_text)
     prefs: Dict[str, float | str] = {}
-    mood_keywords = [
-        "feel-good",
-        "heartbroken",
-        "melancholic",
-        "melancholy",
-        "introspective",
-        "haunting",
-        "dreamy",
-        "quirky",
-        "dramatic",
-        "calm",
-        "epic",
-        "hypnotic",
-        "emotional",
-        "playful",
-        "groovy",
-        "summer",
-        "awkward",
-        "party",
-        "soulful",
-        "dark",
-        "heroic",
-        "energetic",
-        "empowered",
-        "sensual",
-        "happy",
-        "chill",
-        "intense",
-        "relaxed",
-        "moody",
-        "focused",
-        "romantic",
-        "nostalgic",
-        "euphoric",
-        "reflective",
-        "confident",
-        "aggressive",
-        "carefree",
-        "serene",
-        "bouncy",
-        "uplifting",
-    ]
 
     detected_genre = _canonical_genre_from_text(text)
     if detected_genre:
@@ -413,30 +586,29 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
         for key, value in genre_preset.items():
             prefs.setdefault(key, value)
 
-    for mood in mood_keywords:
-        if mood in text:
-            prefs["mood"] = mood
-            break
+    detected_mood = _canonical_mood_from_text(text)
+    if detected_mood:
+        prefs["mood"] = detected_mood
 
-    if any(word in text for word in ["workout", "gym", "run", "hype", "upbeat"]):
+    if _contains_any(text, _WORKOUT_HINTS):
         prefs.setdefault("energy", 0.85)
         prefs.setdefault("danceability", 0.82)
-    elif any(word in text for word in ["party", "club", "dancefloor", "reggaeton"]):
+    elif _contains_any(text, _PARTY_HINTS):
         prefs.setdefault("energy", 0.82)
         prefs.setdefault("danceability", 0.86)
         prefs.setdefault("valence", 0.76)
-    elif any(word in text for word in ["rap", "rapping", "hip hop", "hiphop", "hip-hop", "trap", "drill"]):
+    elif _contains_any(text, _RAP_HINTS):
         prefs.setdefault("energy", 0.78)
         prefs.setdefault("danceability", 0.84)
         prefs.setdefault("valence", 0.62)
-    elif any(word in text for word in ["focus", "study", "coding"]):
+    elif _contains_any(text, _FOCUS_HINTS):
         prefs.setdefault("energy", 0.45)
         prefs.setdefault("tempo_bpm", 85.0)
-    elif any(word in text for word in ["sleep", "calm", "wind down", "recover"]):
+    elif _contains_any(text, _WIND_DOWN_HINTS):
         prefs.setdefault("energy", 0.25)
         prefs.setdefault("acousticness", 0.82)
 
-    if any(word in text for word in ["acoustic", "unplugged", "warm", "intimate"]):
+    if _contains_any(text, _ACOUSTIC_HINTS):
         prefs["acousticness"] = 0.85
     elif "electronic" in text:
         prefs["acousticness"] = 0.20
@@ -448,14 +620,14 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
         prefs.setdefault("valence", 0.78 if prefs["genre"] == "edm" else 0.76)
         prefs.setdefault("acousticness", 0.06 if prefs["genre"] == "edm" else 0.08)
 
-    if any(word in text for word in ["happy", "euphoric", "upbeat", "party", "summer", "feel-good"]):
+    if _contains_any(text, _HIGH_VALENCE_HINTS):
         prefs.setdefault("valence", 0.80)
-    elif any(word in text for word in ["moody", "reflective", "sad", "heartbroken", "melancholic", "melancholy"]):
+    elif _contains_any(text, _LOW_VALENCE_HINTS):
         prefs.setdefault("valence", 0.42)
 
-    if "tempo" not in prefs and any(word in text for word in ["fast", "high bpm", "quick"]):
+    if "tempo" not in prefs and _contains_any(text, _FAST_TEMPO_HINTS):
         prefs["tempo_bpm"] = 130.0
-    elif "tempo" not in prefs and any(word in text for word in ["slow", "low bpm"]):
+    elif "tempo" not in prefs and _contains_any(text, _SLOW_TEMPO_HINTS):
         prefs["tempo_bpm"] = 80.0
 
     discovery_requested = discovery_mode_requested(user_text)
@@ -471,25 +643,7 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
 
 def discovery_mode_requested(user_text: str) -> bool:
     text = _normalize_for_matching(user_text)
-    return any(
-        phrase in text
-        for phrase in [
-            "discovery mode",
-            "surprise me",
-            "explore",
-            "something different",
-            "something new",
-            "take me somewhere new",
-            "wildcard",
-            "adventurous pick",
-            "i dont know",
-            "dont know",
-            "do not know",
-            "doesnt matter",
-            "anything works",
-            "open to anything"
-        ]
-    )
+    return _contains_any(text, _DISCOVERY_PHRASES)
 
 
 def retrieve_song_grounding_docs(
@@ -524,8 +678,8 @@ def detect_cluster_warning(recommendations: Sequence[Tuple[Dict, float, List[str
         else:
             reason = f"clustered in a narrow energy band ({energy_range:.2f})"
         return (
-            f"Transparency: recommendations are {reason}. "
-            "Consider enabling discovery mode for more diversity."
+            f"Recommendations are {reason}. "
+            "For better targeting, you can try finding a mood or genre you want specifically. Just enter it when you do!"
         )
     return None
 
@@ -576,17 +730,57 @@ def build_grounded_explanation(
     score: float,
     reasons: Sequence[str],
     retrieved_docs: Sequence[RagDocument],
+    rank: Optional[int] = None,
 ) -> str:
-    if reasons:
-        main_reason = reasons[0].rstrip(".")
-        base = f"This is a strong fit because {main_reason}."
-        if len(reasons) > 1:
-            base += f" Also, {reasons[1].rstrip('.')}."
+    if rank is not None and 3 <= rank <= 5:
+        mood = str(song.get("mood", "unknown"))
+        valence_raw = song.get("valence")
+        try:
+            valence = f"{float(valence_raw):.2f}"
+        except (TypeError, ValueError):
+            valence = "unknown"
+
+        grounded_by = retrieved_docs[0].title if retrieved_docs else "none"
+        return (
+            "Song rec reasoning: "
+            f"[mood: {mood}, valence: {valence}, grounded by: {grounded_by}] "
+            "Could be worth a listen?"
+        )
+
+    if not reasons:
+        intro = "This is a strong fit."
     else:
-        base = "This is a strong fit."
+        main_reason = reasons[0].rstrip(".")
+        if rank == 1:
+            intro = f"Your top choice! It's because {main_reason}."
+        elif rank == 2:
+            mood_reason = next(
+                (reason for reason in reasons if "mood lines up" in reason or "mood is not an exact match" in reason),
+                "",
+            )
+            mood_match_text = "is a match"
+            if "mood is not an exact match" in mood_reason:
+                mood_match_text = "is not an exact match"
+
+            valence_reason = next(
+                (reason.rstrip(".") for reason in reasons if "valence is close" in reason),
+                "the valence is close to what you seem to want to hear right now",
+            )
+            intro = (
+                "This could also be a good fit for you; "
+                f"the mood {mood_match_text} while {valence_reason}."
+            )
+        else:
+            intro = f"This is a pretty strong fit because {main_reason}."
+        if len(reasons) > 1:
+            if rank == 2:
+                pass
+            else:
+                intro += f" Also, {reasons[1].rstrip('.')}"
+                intro += "."
 
     if not retrieved_docs:
-        return base + f" (Score {score:.2f}.)"
+        return intro + f" (Score {score:.2f}.)"
 
-    titles = ", ".join(doc.title for doc in retrieved_docs[:2])
-    return base + f" Grounded by: {titles}."
+    top_title = retrieved_docs[0].title
+    return intro + f" Grounded by: {top_title}."
