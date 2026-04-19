@@ -46,5 +46,11 @@
     "title": "Calm Recovery Listening",
     "text": "Recovery and wind-down sessions usually work best with chill or serene moods, low energy, and acoustic or ambient textures.",
     "tags": ["context:recovery", "mood:chill", "mood:serene", "genre:ambient", "energy:low", "acousticness:high"]
+  },
+  {
+    "id": "doc-9",
+    "title": "Reggaeton Party Mapping",
+    "text": "Reggaeton and party playlists usually target high danceability, mid-high energy, and positive valence for social settings.",
+    "tags": ["context:party", "genre:reggaeton", "mood:party", "energy:midhigh", "danceability:high", "valence:high"]
   }
 ]

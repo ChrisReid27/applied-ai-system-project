@@ -19,6 +19,65 @@ def _tokenize(text: str) -> List[str]:
     return re.findall(r"[a-z0-9]+", text.lower())
 
 
+_TOKEN_SYNONYMS = {
+    "gym": "workout",
+    "run": "workout",
+    "running": "workout",
+    "exercise": "workout",
+    "upbeat": "energetic",
+    "hype": "energetic",
+    "study": "focus",
+    "coding": "focus",
+    "code": "focus",
+    "drive": "driving",
+    "roadtrip": "driving",
+    "calm": "chill",
+    "serene": "chill",
+    "moody": "reflective",
+    "sad": "reflective",
+    "hiphop": "hip hop",
+    "hip-hop": "hip hop",
+    "rap": "hip hop",
+    "r&b": "r&b",
+    "rnb": "r&b",
+    "reggaeton": "reggaeton",
+    "spanish": "reggaeton",
+    "latin": "reggaeton",
+    "club": "party",
+    "turnup": "party",
+    "feelgood": "feel-good",
+}
+
+
+def _normalize_tokens(tokens: Sequence[str]) -> List[str]:
+    return [_TOKEN_SYNONYMS.get(token, token) for token in tokens]
+
+
+def _term_frequency(tokens: Sequence[str]) -> Dict[str, float]:
+    if not tokens:
+        return {}
+
+    counts: Dict[str, int] = {}
+    for token in tokens:
+        counts[token] = counts.get(token, 0) + 1
+
+    token_count = float(len(tokens))
+    return {token: count / token_count for token, count in counts.items()}
+
+
+def _cosine_similarity(left: Dict[str, float], right: Dict[str, float]) -> float:
+    if not left or not right:
+        return 0.0
+
+    dot = sum(value * right.get(token, 0.0) for token, value in left.items())
+    left_norm = sum(value * value for value in left.values()) ** 0.5
+    right_norm = sum(value * value for value in right.values()) ** 0.5
+    if left_norm == 0.0 or right_norm == 0.0:
+        return 0.0
+
+    return dot / (left_norm * right_norm)
+
+
 def load_corpus(path: str = "data/rag_corpus.json") -> List[RagDocument]:
     corpus_path = Path(path)
     with corpus_path.open("r", encoding="utf-8") as file:
@@ -43,20 +102,34 @@ def retrieve_docs(
     k: int = 3,
     required_tag_prefixes: Optional[Iterable[str]] = None,
 ) -> List[RagDocument]:
-    query_tokens = set(_tokenize(query))
+    query_raw_tokens = _tokenize(query)
+    query_tokens = set(query_raw_tokens)
+    query_norm_tokens = _normalize_tokens(query_raw_tokens)
+    query_tf = _term_frequency(query_norm_tokens)
     required = list(required_tag_prefixes or [])
 
     scored: List[Tuple[float, str, RagDocument]] = []
     for doc in docs:
-        doc_tokens = set(_tokenize(doc.title + " " + doc.text + " " + " ".join(doc.tags)))
-        overlap = len(query_tokens.intersection(doc_tokens))
+        raw_doc_tokens = _tokenize(doc.title + " " + doc.text + " " + " ".join(doc.tags))
+        doc_tokens = set(raw_doc_tokens)
+        doc_norm_tokens = _normalize_tokens(raw_doc_tokens)
+        doc_tf = _term_frequency(doc_norm_tokens)
+
+        keyword_overlap = len(query_tokens.intersection(doc_tokens))
+        keyword_score = keyword_overlap / max(1, len(query_tokens))
+
+        semantic_score = _cosine_similarity(query_tf, doc_tf)
+
+        tag_text = " ".join(doc.tags).lower()
+        tag_hits = sum(1 for token in set(query_norm_tokens) if token in tag_text)
+        tag_score = min(1.0, tag_hits / 3.0)
 
         prefix_bonus = 0.0
         for prefix in required:
             if any(tag.startswith(prefix) for tag in doc.tags):
-                prefix_bonus += 0.5
+                prefix_bonus += 0.2
 
-        score = float(overlap) + prefix_bonus
+        score = (0.55 * semantic_score) + (0.35 * keyword_score) + (0.10 * tag_score) + prefix_bonus
         scored.append((score, doc.id, doc))
 
     scored.sort(key=lambda item: (item[0], item[1]), reverse=True)
@@ -71,6 +144,11 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
     prefs: Dict[str, float | str] = {}
 
     genre_keywords = [
+        "psychedelic rock",
+        "indie pop",
+        "hip hop",
+        "r&b",
+        "reggaeton",
         "pop",
         "lofi",
         "rock",
@@ -80,14 +158,35 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
         "metal",
         "reggae",
         "classical",
-        "hip hop",
         "country",
         "edm",
         "folk",
-        "r&b",
-        "indie pop",
     ]
     mood_keywords = [
+        "feel-good",
+        "heartbroken",
+        "melancholic",
+        "melancholy",
+        "introspective",
+        "haunting",
+        "dreamy",
+        "quirky",
+        "dramatic",
+        "calm",
+        "epic",
+        "hypnotic",
+        "emotional",
+        "playful",
+        "groovy",
+        "summer",
+        "awkward",
+        "party",
+        "soulful",
+        "dark",
+        "heroic",
+        "energetic",
+        "empowered",
+        "sensual",
         "happy",
         "chill",
         "intense",
@@ -117,6 +216,10 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
     if any(word in text for word in ["workout", "gym", "run", "hype", "upbeat"]):
         prefs.setdefault("energy", 0.85)
         prefs.setdefault("danceability", 0.82)
+    elif any(word in text for word in ["party", "club", "dancefloor", "reggaeton"]):
+        prefs.setdefault("energy", 0.82)
+        prefs.setdefault("danceability", 0.86)
+        prefs.setdefault("valence", 0.76)
     elif any(word in text for word in ["focus", "study", "coding"]):
         prefs.setdefault("energy", 0.45)
         prefs.setdefault("tempo_bpm", 85.0)
@@ -131,9 +234,9 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
     elif "electronic" in text:
         prefs["acousticness"] = 0.20
 
-    if any(word in text for word in ["happy", "euphoric", "upbeat"]):
+    if any(word in text for word in ["happy", "euphoric", "upbeat", "party", "summer", "feel-good"]):
         prefs.setdefault("valence", 0.80)
-    elif any(word in text for word in ["moody", "reflective", "sad"]):
+    elif any(word in text for word in ["moody", "reflective", "sad", "heartbroken", "melancholic", "melancholy"]):
         prefs.setdefault("valence", 0.42)
 
     if "tempo" not in prefs and any(word in text for word in ["fast", "high bpm", "quick"]):

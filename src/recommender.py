@@ -101,7 +101,11 @@ def load_songs(csv_path: str) -> List[Dict]:
     with open(csv_path, mode="r", encoding="utf-8", newline="") as file:
         reader = csv.DictReader(file)
         for row in reader:
-            song = dict(row)
+            # Normalize whitespace so CSV edits do not create accidental mismatches.
+            song = {
+                key: (value.strip() if isinstance(value, str) else value)
+                for key, value in dict(row).items()
+            }
             for field, converter in numeric_converters.items():
                 if field in song and song[field] != "":
                     song[field] = converter(song[field])

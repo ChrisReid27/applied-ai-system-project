@@ -25,6 +25,22 @@ def test_retrieve_docs_returns_ranked_documents():
     assert any("Focus" in doc.title or "Late Night" in doc.title for doc in results)
 
 
+def test_hybrid_retriever_matches_workout_synonyms():
+    docs = load_corpus()
+    results = retrieve_docs("gym run hype mix", docs, k=2)
+
+    assert len(results) == 2
+    assert any("Workout" in doc.title for doc in results)
+
+
+def test_hybrid_retriever_matches_reggaeton_party_context():
+    docs = load_corpus()
+    results = retrieve_docs("latin club reggaeton party", docs, k=2)
+
+    assert len(results) == 2
+    assert any("Reggaeton" in doc.title for doc in results)
+
+
 def test_build_grounded_explanation_mentions_sources():
     docs = load_corpus()[:2]
     explanation = build_grounded_explanation(
@@ -60,3 +76,12 @@ def test_select_bridge_recommendation_returns_outside_cluster_song():
     bridge_song, _, bridge_reasons = bridge_pick
     assert bridge_song["genre"] != "pop"
     assert any("bridge from" in reason for reason in bridge_reasons)
+
+
+def test_infer_profile_from_text_handles_new_genre_and_mood_keywords():
+    songs = [{"genre": "pop", "mood": "happy"}]
+    prefs, _ = infer_profile_from_text("Need a reggaeton party mix for tonight", songs)
+
+    assert prefs["genre"] == "reggaeton"
+    assert prefs["mood"] == "party"
+    assert float(prefs["danceability"]) >= 0.85
