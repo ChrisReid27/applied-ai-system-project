@@ -1,0 +1,50 @@
+[
+  {
+    "id": "doc-1",
+    "title": "Workout Energy Mapping",
+    "text": "Workout playlists usually score high on energy and danceability. Upbeat pop and edm tracks are commonly used for exercise motivation.",
+    "tags": ["context:workout", "mood:happy", "mood:intense", "genre:pop", "genre:edm", "energy:high"]
+  },
+  {
+    "id": "doc-2",
+    "title": "Late Night Focus Guidance",
+    "text": "Late-night focus listening often favors lofi, ambient, and low-to-mid energy songs with moderate tempo and higher acousticness.",
+    "tags": ["context:focus", "mood:focused", "mood:chill", "genre:lofi", "genre:ambient", "energy:low", "acousticness:high"]
+  },
+  {
+    "id": "doc-3",
+    "title": "Bridge Recommendations",
+    "text": "When top songs are too similar, include one bridge track from a neighboring energy band to improve discovery without losing mood fit.",
+    "tags": ["strategy:diversity", "energy:mid", "bias:cluster"]
+  },
+  {
+    "id": "doc-4",
+    "title": "Acoustic Preference Note",
+    "text": "Words like acoustic, unplugged, warm, and intimate often map to higher acousticness and slightly lower energy targets.",
+    "tags": ["feature:acousticness", "energy:low", "mood:relaxed"]
+  },
+  {
+    "id": "doc-5",
+    "title": "Mood Language Mapping",
+    "text": "Happy and euphoric language tends to align with higher valence. Moody and reflective language tends to align with lower valence.",
+    "tags": ["feature:valence", "mood:happy", "mood:euphoric", "mood:moody", "mood:reflective"]
+  },
+  {
+    "id": "doc-6",
+    "title": "Known Biases in Small Catalogs",
+    "text": "Small catalogs can over-represent a few genres or energy ranges. Add transparency warnings when recommendations cluster too tightly.",
+    "tags": ["bias:representation", "bias:cluster", "strategy:transparency"]
+  },
+  {
+    "id": "doc-7",
+    "title": "Driving Session Vibes",
+    "text": "Night driving sessions often use synthwave and moody pop with mid-high energy and steady tempo.",
+    "tags": ["context:driving", "genre:synthwave", "genre:pop", "mood:moody", "energy:midhigh"]
+  },
+  {
+    "id": "doc-8",
+    "title": "Calm Recovery Listening",
+    "text": "Recovery and wind-down sessions usually work best with chill or serene moods, low energy, and acoustic or ambient textures.",
+    "tags": ["context:recovery", "mood:chill", "mood:serene", "genre:ambient", "energy:low", "acousticness:high"]
+  }
+]

@@ -9,60 +9,48 @@ You will implement the functions in recommender.py:
 - recommend_songs
 """
 
+from .rag import (
+    build_grounded_explanation,
+    detect_cluster_warning,
+    infer_profile_from_text,
+    retrieve_docs,
+)
 from .recommender import load_songs, recommend_songs
 
 
 def main() -> None:
     songs = load_songs("data/songs.csv")
 
-    # Starter example profile
-    # user_prefs = {"genre": "pop", "mood": "happy", "energy": 0.8}
-
-    # Testing profiles
-    high_energy_pop = { # conflicting preferences for testing
-        "genre": "pop",
-        "mood": "moody", # testing how the system handles a mismatch in mood preference while having a strong genre match and high energy preference
-        "energy": 0.9,
-        "likes_acoustic": False,
-        }
-    chill_lofi = { # boundary testing: All minimized preferences to see if the system can handle extreme cases
-        #"genre": "lofi",
-        #"mood": "chill",
-        "energy": 0.0,
-        "tempo_bpm": 0.0,
-        "valence": 0.0,
-        "danceability": 0.0,
-        "acousticness": 1.0,
-        }
-    deep_intense_rock = { # unusual combination to test edge cases
-        "genre": "rock",
-        "mood": "intense",
-        "energy": 0.2, # low energy but intense mood to see how the system balances these factors
-       "likes_acoustic": True, # testing preference for acoustic music in a typically non-acoustic genre
-       }
-    
-    profiles = {
-        "High-Energy Pop": high_energy_pop,
-        "Chill Lofi": chill_lofi,
-        "Deep Intense Rock": deep_intense_rock,
+    user_prompts = {
+        "Workout Pop Session": "Give me upbeat pop for a workout. Keep it high energy.",
+        "Late Night Focus": "I need chill lofi focus music for coding at night.",
+        "Moody Drive": "I want moody songs for a night drive, not too acoustic.",
     }
 
-    # Show recommendations for each profile
-    for profile_name, user_prefs in profiles.items():
+    for prompt_name, user_text in user_prompts.items():
+        user_prefs, profile_docs = infer_profile_from_text(user_text, songs)
+
         print(f"\n{'='*50}")
-        print(f"Profile: {profile_name}")
-        print(f"Preferences: {user_prefs}")
+        print(f"Prompt: {prompt_name}")
+        print(f"User text: {user_text}")
+        print(f"Inferred profile: {user_prefs}")
         print(f"{'='*50}\n")
 
         recommendations = recommend_songs(user_prefs, songs, k=5)
+        cluster_warning = detect_cluster_warning(recommendations)
 
         print("Top recommendations:\n")
         for song, score, reasons in recommendations:
-            # You decide the structure of each returned item.
-            # A common pattern is: (song, score, explanation)
+            query = f"{song['genre']} {song['mood']} {user_text}"
+            docs = retrieve_docs(query, profile_docs, k=2)
+            explanation = build_grounded_explanation(song, score, reasons, docs)
+
             print(f"  {song['title']} - Score: {score:.2f}")
-            print(f"  Because: {'; '.join(reasons)}")
+            print(f"  Because: {explanation}")
             print()
+
+        if cluster_warning:
+            print(cluster_warning)
 
 
 if __name__ == "__main__":
