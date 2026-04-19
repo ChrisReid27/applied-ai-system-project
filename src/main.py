@@ -13,6 +13,7 @@ from .rag import (
     build_grounded_explanation,
     detect_cluster_warning,
     infer_profile_from_text,
+    select_bridge_recommendation,
     retrieve_docs,
 )
 from .recommender import load_songs, recommend_songs
@@ -38,6 +39,7 @@ def main() -> None:
 
         recommendations = recommend_songs(user_prefs, songs, k=5)
         cluster_warning = detect_cluster_warning(recommendations)
+        bridge_pick = select_bridge_recommendation(user_prefs, songs, recommendations) if cluster_warning else None
 
         print("Top recommendations:\n")
         for song, score, reasons in recommendations:
@@ -51,6 +53,23 @@ def main() -> None:
 
         if cluster_warning:
             print(cluster_warning)
+
+        if bridge_pick:
+            bridge_song, bridge_score, bridge_reasons = bridge_pick
+            bridge_docs = retrieve_docs(
+                f"{bridge_song['genre']} {bridge_song['mood']} {user_text}",
+                profile_docs,
+                k=2,
+            )
+            bridge_explanation = build_grounded_explanation(
+                bridge_song,
+                bridge_score,
+                bridge_reasons,
+                bridge_docs,
+            )
+            print("\nDiscovery mode pick:")
+            print(f"  {bridge_song['title']} - Score: {bridge_score:.2f}")
+            print(f"  Because: {bridge_explanation}")
 
 
 if __name__ == "__main__":

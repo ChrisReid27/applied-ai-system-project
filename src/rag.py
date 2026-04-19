@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
+from .recommender import _score_song_dict
+
 
 @dataclass
 class RagDocument:
@@ -155,12 +157,60 @@ def detect_cluster_warning(recommendations: Sequence[Tuple[Dict, float, List[str
     genres = [str(song.get("genre", "")) for song, _, _ in recommendations]
     top_genre = max(set(genres), key=genres.count)
     ratio = genres.count(top_genre) / len(genres)
-    if ratio >= 0.8:
+    energies = [float(song.get("energy", 0.0)) for song, _, _ in recommendations if song.get("energy") is not None]
+    energy_range = max(energies) - min(energies) if energies else 1.0
+
+    if ratio >= 0.8 or energy_range <= 0.20:
+        if ratio >= 0.8:
+            reason = f"clustered around '{top_genre}'"
+        else:
+            reason = f"clustered in a narrow energy band ({energy_range:.2f})"
         return (
-            f"Transparency: recommendations are clustered around '{top_genre}'. "
+            f"Transparency: recommendations are {reason}. "
             "Consider enabling discovery mode for more diversity."
         )
     return None
+
+
+def select_bridge_recommendation(
+    user_prefs: Dict,
+    songs: Sequence[Dict],
+    recommendations: Sequence[Tuple[Dict, float, List[str]]],
+) -> Optional[Tuple[Dict, float, List[str]]]:
+    if not recommendations:
+        return None
+
+    top_genres = [str(song.get("genre", "")) for song, _, _ in recommendations]
+    dominant_genre = max(set(top_genres), key=top_genres.count)
+    recommended_ids = {song.get("id") for song, _, _ in recommendations}
+
+    tempos = [float(song["tempo_bpm"]) for song in songs if "tempo_bpm" in song and song["tempo_bpm"] != ""]
+    min_tempo = min(tempos) if tempos else None
+    max_tempo = max(tempos) if tempos else None
+
+    bridge_candidates: List[Tuple[float, Dict, List[str]]] = []
+    for song in songs:
+        if song.get("id") in recommended_ids:
+            continue
+
+        score, reasons = _score_song_dict(user_prefs, song, min_tempo, max_tempo)
+        if song.get("genre") == dominant_genre:
+            score -= 0.75
+            reasons = list(reasons) + ["cluster penalty (-0.75)"]
+        else:
+            reasons = list(reasons) + [f"bridge from {dominant_genre} to {song.get('genre', 'unknown')}"]
+
+        bridge_candidates.append((score, song, reasons))
+
+    if not bridge_candidates:
+        return None
+
+    bridge_candidates.sort(key=lambda item: (item[0], str(item[1].get("id", ""))), reverse=True)
+    best_score, best_song, best_reasons = bridge_candidates[0]
+    if best_score <= 0:
+        return None
+
+    return best_song, best_score, best_reasons
 
 
 def build_grounded_explanation(

@@ -1,4 +1,11 @@
-from src.rag import build_grounded_explanation, infer_profile_from_text, retrieve_docs, load_corpus
+from src.rag import (
+    build_grounded_explanation,
+    detect_cluster_warning,
+    infer_profile_from_text,
+    load_corpus,
+    retrieve_docs,
+    select_bridge_recommendation,
+)
 
 
 def test_infer_profile_from_text_extracts_genre_and_defaults():
@@ -28,3 +35,28 @@ def test_build_grounded_explanation_mentions_sources():
     )
 
     assert "Grounded by" in explanation
+
+
+def test_select_bridge_recommendation_returns_outside_cluster_song():
+    songs = [
+        {"id": 1, "title": "One", "genre": "pop", "mood": "happy", "energy": 0.9, "tempo_bpm": 120, "valence": 0.8, "danceability": 0.8, "acousticness": 0.2},
+        {"id": 2, "title": "Two", "genre": "pop", "mood": "happy", "energy": 0.85, "tempo_bpm": 118, "valence": 0.78, "danceability": 0.82, "acousticness": 0.18},
+        {"id": 3, "title": "Bridge", "genre": "lofi", "mood": "chill", "energy": 0.55, "tempo_bpm": 84, "valence": 0.6, "danceability": 0.58, "acousticness": 0.75},
+    ]
+    recommendations = [
+        (songs[0], 7.5, ["genre match"]),
+        (songs[1], 7.1, ["genre match"]),
+    ]
+
+    cluster_warning = detect_cluster_warning(recommendations)
+    bridge_pick = select_bridge_recommendation(
+        {"genre": "pop", "mood": "happy", "energy": 0.9},
+        songs,
+        recommendations,
+    )
+
+    assert cluster_warning is not None
+    assert bridge_pick is not None
+    bridge_song, _, bridge_reasons = bridge_pick
+    assert bridge_song["genre"] != "pop"
+    assert any("bridge from" in reason for reason in bridge_reasons)
