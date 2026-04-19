@@ -19,22 +19,37 @@ def _tokenize(text: str) -> List[str]:
     return re.findall(r"[a-z0-9]+", text.lower())
 
 
+def _normalize_for_matching(text: str) -> str:
+    normalized = text.lower().replace("'", "")
+    normalized = re.sub(r"[^a-z0-9]+", " ", normalized)
+    return re.sub(r"\s+", " ", normalized).strip()
+
+
 _TOKEN_SYNONYMS = {
     "gym": "workout",
     "run": "workout",
     "running": "workout",
     "exercise": "workout",
+    "rapping": "hip hop",
+    "rapper": "hip hop",
+    "rappers": "hip hop",
+    "rap": "hip hop",
     "upbeat": "energetic",
     "hype": "energetic",
+    "bouncy": "energetic",
+    "pumped": "energetic",
     "study": "focus",
     "coding": "focus",
     "code": "focus",
+    "flow": "confident",
     "drive": "driving",
     "roadtrip": "driving",
     "calm": "chill",
     "serene": "chill",
+    "chillout": "chill",
     "moody": "reflective",
     "sad": "reflective",
+    "wistful": "reflective",
     "hiphop": "hip hop",
     "hip-hop": "hip hop",
     "rap": "hip hop",
@@ -45,8 +60,46 @@ _TOKEN_SYNONYMS = {
     "latin": "reggaeton",
     "club": "party",
     "turnup": "party",
+    "turn-up": "party",
+    "dancefloor": "party",
     "feelgood": "feel-good",
+    "feel-good": "feel-good",
+    "hyperpop": "edm",
 }
+
+
+_GENRE_ALIASES = {
+    "edm": ["party", "club", "hyperpop", "hyper pop", "rave", "electronic", "electronic music", "dance music", 
+            "club music", "house", "techno", "trance", "dubstep", "future bass", "festival edm"],
+    "pop": ["pop music", "mainstream pop", "chart pop", "top 100", "radio", "popular", "catchy"],
+    "indie pop": ["independent", "indie", "indiepop", "alt pop", "alternative pop", 
+                  "bedroom pop", "dream pop", "bedroom", "twee"],
+    "hip hop": ["hip-hop", "hiphop", "rap", "rap music", "rap songs", "rapping", "rapper", 
+                "rappers", "trap", "drill", "boom bap"],
+    "r&b": ["rnb", "rhythm and blues", "neo soul", "neosoul", "soul", "contemporary r&b"],
+    "reggaeton": ["latin reggaeton", "latin trap", "dembow", "urbano"],
+    "lofi": ["lo fi", "lo-fi", "chillhop", "study beats", "beats to study", "study music"],
+    "ambient": ["ambient music", "soundscape", "drone", "meditation music", "background ambience"],
+    "rock": ["rock music", "alternative rock", "alt rock", "indie rock", "hard rock", "classic rock", "garage rock", "punk rock"],
+    "metal": ["heavy metal", "death metal", "black metal", "thrash metal", "metalcore"],
+    "jazz": ["jazz music", "smooth jazz", "bebop", "swing", "blues jazz"],
+    "folk": ["folk music", "indie folk", "americana", "singer songwriter", "bluegrass"],
+    "country": ["yeehaw", "country music", "country pop", "americana country", "outlaw country"],
+    "classical": ["classical music", "orchestral", "symphonic", "piano classical", "chamber music", "instrumental classical"],
+    "reggae": ["reggae music", "roots reggae", "dub", "ska", "dancehall"],
+    "synthwave": ["synth", "retrowave", "outrun", "vaporwave", "neon synth"],
+    "psychedelic rock": ["weird", "trippy", "psychedelic", "psych rock", "space rock", "prog rock"],
+}
+
+
+_GENRE_ALIAS_LOOKUP = {
+    _normalize_for_matching(alias): canonical
+    for canonical, aliases in _GENRE_ALIASES.items()
+    for alias in aliases + [canonical]
+}
+
+
+_GENRE_MATCH_ORDER = sorted(_GENRE_ALIAS_LOOKUP, key=len, reverse=True)
 
 
 _GENRE_PRESETS = {
@@ -193,6 +246,32 @@ def _normalize_tokens(tokens: Sequence[str]) -> List[str]:
     return [_TOKEN_SYNONYMS.get(token, token) for token in tokens]
 
 
+def _canonical_genre_from_text(text: str) -> Optional[str]:
+    normalized = _normalize_for_matching(text)
+    for alias in _GENRE_MATCH_ORDER:
+        if alias in normalized:
+            return _GENRE_ALIAS_LOOKUP[alias]
+    return None
+
+
+def _build_exploration_profile(songs: Sequence[Dict]) -> Dict[str, float]:
+    numeric_fields = ["energy", "danceability", "valence", "acousticness", "tempo_bpm"]
+    profile: Dict[str, float] = {}
+
+    for field in numeric_fields:
+        values = [float(song[field]) for song in songs if field in song and song[field] != ""]
+        if values:
+            profile[field] = sum(values) / len(values)
+
+    profile.setdefault("energy", 0.55)
+    profile.setdefault("danceability", 0.55)
+    profile.setdefault("valence", 0.55)
+    profile.setdefault("acousticness", 0.45)
+    profile.setdefault("tempo_bpm", 100.0)
+    profile["mode"] = "discovery"
+    return profile
+
+
 def _term_frequency(tokens: Sequence[str]) -> Dict[str, float]:
     if not tokens:
         return {}
@@ -280,28 +359,8 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
     docs = load_corpus()
     retrieved = retrieve_docs(user_text, docs, k=3)
 
-    text = user_text.lower()
+    text = _normalize_for_matching(user_text)
     prefs: Dict[str, float | str] = {}
-
-    genre_keywords = [
-        "psychedelic rock",
-        "indie pop",
-        "hip hop",
-        "r&b",
-        "reggaeton",
-        "pop",
-        "lofi",
-        "rock",
-        "ambient",
-        "jazz",
-        "synthwave",
-        "metal",
-        "reggae",
-        "classical",
-        "country",
-        "edm",
-        "folk",
-    ]
     mood_keywords = [
         "feel-good",
         "heartbroken",
@@ -341,12 +400,13 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
         "aggressive",
         "carefree",
         "serene",
+        "bouncy",
+        "uplifting",
     ]
 
-    for genre in sorted(genre_keywords, key=len, reverse=True):
-        if genre in text:
-            prefs["genre"] = genre
-            break
+    detected_genre = _canonical_genre_from_text(text)
+    if detected_genre:
+        prefs["genre"] = detected_genre
 
     genre_preset = _GENRE_PRESETS.get(str(prefs.get("genre", "")))
     if genre_preset:
@@ -365,14 +425,16 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
         prefs.setdefault("energy", 0.82)
         prefs.setdefault("danceability", 0.86)
         prefs.setdefault("valence", 0.76)
+    elif any(word in text for word in ["rap", "rapping", "hip hop", "hiphop", "hip-hop", "trap", "drill"]):
+        prefs.setdefault("energy", 0.78)
+        prefs.setdefault("danceability", 0.84)
+        prefs.setdefault("valence", 0.62)
     elif any(word in text for word in ["focus", "study", "coding"]):
         prefs.setdefault("energy", 0.45)
         prefs.setdefault("tempo_bpm", 85.0)
     elif any(word in text for word in ["sleep", "calm", "wind down", "recover"]):
         prefs.setdefault("energy", 0.25)
         prefs.setdefault("acousticness", 0.82)
-    else:
-        prefs.setdefault("energy", 0.60)
 
     if any(word in text for word in ["acoustic", "unplugged", "warm", "intimate"]):
         prefs["acousticness"] = 0.85
@@ -396,21 +458,19 @@ def infer_profile_from_text(user_text: str, songs: Sequence[Dict]) -> Tuple[Dict
     elif "tempo" not in prefs and any(word in text for word in ["slow", "low bpm"]):
         prefs["tempo_bpm"] = 80.0
 
-    # Fallbacks grounded in available catalog values.
-    if "genre" not in prefs:
-        prefs["genre"] = str(songs[0]["genre"]) if songs else "pop"
-    if "mood" not in prefs:
-        fallback_genre = str(prefs.get("genre", ""))
-        if fallback_genre in _GENRE_PRESETS:
-            prefs["mood"] = _GENRE_PRESETS[fallback_genre]["mood"]
-        else:
-            prefs["mood"] = str(songs[0]["mood"]) if songs else "happy"
+    discovery_requested = discovery_mode_requested(user_text)
+    if discovery_requested:
+        if "genre" not in prefs:
+            prefs.update(_build_exploration_profile(songs))
+        prefs["mode"] = "discovery"
+    elif not prefs:
+        prefs["needs_clarification"] = True
 
     return prefs, retrieved
 
 
 def discovery_mode_requested(user_text: str) -> bool:
-    text = user_text.lower()
+    text = _normalize_for_matching(user_text)
     return any(
         phrase in text
         for phrase in [
@@ -421,6 +481,13 @@ def discovery_mode_requested(user_text: str) -> bool:
             "something new",
             "take me somewhere new",
             "wildcard",
+            "adventurous pick",
+            "i dont know",
+            "dont know",
+            "do not know",
+            "doesnt matter",
+            "anything works",
+            "open to anything"
         ]
     )
 

@@ -41,10 +41,17 @@ def main() -> None:
         user_prefs, profile_docs = infer_profile_from_text(user_text, songs)
         discovery_requested = discovery_mode_requested(user_text)
 
+        if user_prefs.get("needs_clarification"):
+            print("\nI need a little more to work with. Try naming a genre, a mood, or ask for discovery mode.")
+            print()
+            continue
+
         print(f"\n{'='*50}")
         genre = str(user_prefs.get("genre", "music"))
         mood = str(user_prefs.get("mood", ""))
-        if mood:
+        if user_prefs.get("mode") == "discovery" and not user_prefs.get("genre"):
+            print("I heard you want to explore a few options.")
+        elif mood:
             print(f"I heard you want {genre} with a {mood} feel.")
         else:
             print(f"I heard you want {genre}.")
@@ -57,7 +64,7 @@ def main() -> None:
         cluster_warning = detect_cluster_warning(recommendations)
         bridge_pick = (
             select_bridge_recommendation(user_prefs, songs, recommendations)
-            if (cluster_warning or discovery_requested)
+            if discovery_requested
             else None
         )
 
@@ -81,7 +88,7 @@ def main() -> None:
                 bridge_reasons,
                 bridge_docs,
             )
-            print("\nIf you want one more adventurous pick:")
+            print("\nDiscovery mode pick:")
             print(f"{bridge_song['title']} by {bridge_song['artist']}")
             print(f"   {bridge_explanation}")
 

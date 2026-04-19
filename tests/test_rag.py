@@ -79,6 +79,8 @@ def test_retrieve_song_grounding_docs_uses_song_specific_tags():
 def test_discovery_mode_requested_recognizes_opt_in_language():
     assert discovery_mode_requested("surprise me with discovery mode")
     assert discovery_mode_requested("take me somewhere new")
+    assert discovery_mode_requested("I don't know")
+    assert discovery_mode_requested("DON'T KNOW")
     assert not discovery_mode_requested("i want some edm")
 
 
@@ -114,6 +116,47 @@ def test_infer_profile_from_text_handles_new_genre_and_mood_keywords():
     assert prefs["genre"] == "reggaeton"
     assert prefs["mood"] == "party"
     assert float(prefs["danceability"]) >= 0.85
+
+
+def test_infer_profile_from_text_maps_rapping_to_hip_hop():
+    songs = [{"genre": "pop", "mood": "happy"}]
+    prefs, _ = infer_profile_from_text("some rapping", songs)
+
+    assert prefs["genre"] == "hip hop"
+    assert prefs["mood"] in {"confident", "aggressive", "introspective"}
+    assert float(prefs["energy"]) >= 0.75
+
+
+def test_infer_profile_from_text_maps_aliases_to_supported_genres():
+    songs = [{"genre": "pop", "mood": "happy"}]
+    prefs, _ = infer_profile_from_text("need some lo fi beats for studying", songs)
+
+    assert prefs["genre"] == "lofi"
+    assert prefs["mood"] == "chill"
+
+
+def test_infer_profile_from_text_handles_punctuation_in_aliases():
+    songs = [{"genre": "pop", "mood": "happy"}]
+    prefs, _ = infer_profile_from_text("need some lo-fi beats, for studying!", songs)
+
+    assert prefs["genre"] == "lofi"
+    assert prefs["mood"] == "chill"
+
+
+def test_infer_profile_from_text_maps_hyperpop_to_edm():
+    songs = [{"genre": "pop", "mood": "happy"}]
+    prefs, _ = infer_profile_from_text("i want hyperpop", songs)
+
+    assert prefs["genre"] == "edm"
+    assert prefs["mood"] in {"euphoric", "energetic"}
+
+
+def test_infer_profile_from_text_marks_ambiguous_input_for_clarification():
+    songs = [{"genre": "pop", "mood": "happy"}]
+    prefs, _ = infer_profile_from_text("huh", songs)
+
+    assert prefs.get("needs_clarification") is True
+    assert "genre" not in prefs
 
 
 def test_infer_profile_from_text_treats_edm_as_high_energy_dance_music():
