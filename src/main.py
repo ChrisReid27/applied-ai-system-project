@@ -22,17 +22,22 @@ from .recommender import load_songs, recommend_songs
 def main() -> None:
     songs = load_songs("data/songs.csv")
 
-    user_prompts = {
-        "Workout Pop Session": "Give me upbeat pop for a workout. Keep it high energy.",
-        "Late Night Focus": "I need chill lofi focus music for coding at night.",
-        "Moody Drive": "I want moody songs for a night drive, not too acoustic.",
-    }
+    print("Music recommender ready.")
+    print("Type any request and press Enter. Type 'quit' to exit.\n")
 
-    for prompt_name, user_text in user_prompts.items():
+    while True:
+        user_text = input("What do you want to hear? ").strip()
+        if user_text.lower() in {"quit", "exit", "q"}:
+            print("Goodbye.")
+            break
+
+        if not user_text:
+            print("Please enter a request or type 'quit' to exit.\n")
+            continue
+
         user_prefs, profile_docs = infer_profile_from_text(user_text, songs)
 
         print(f"\n{'='*50}")
-        print(f"Prompt: {prompt_name}")
         print(f"User text: {user_text}")
         print(f"Inferred profile: {user_prefs}")
         print(f"{'='*50}\n")
@@ -70,6 +75,8 @@ def main() -> None:
             print("\nDiscovery mode pick:")
             print(f"  {bridge_song['title']} - Score: {bridge_score:.2f}")
             print(f"  Because: {bridge_explanation}")
+
+        print()
 
 
 if __name__ == "__main__":
