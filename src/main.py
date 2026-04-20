@@ -1,12 +1,5 @@
 """
-Command line runner for the Music Recommender Simulation.
-
-This file helps you quickly run and test your recommender.
-
-You will implement the functions in recommender.py:
-- load_songs
-- score_song
-- recommend_songs
+Main entry point for the music recommendation system.
 """
 
 from .rag import (
@@ -46,21 +39,9 @@ def main() -> None:
             print()
             continue
 
-        print(f"\n{'='*50}")
-        genre = str(user_prefs.get("genre", "music"))
-        mood = str(user_prefs.get("mood", ""))
-        if user_prefs.get("mode") == "discovery" and not user_prefs.get("genre"):
-            print("I heard you want to explore a few options.")
-        elif mood:
-            print(f"I heard you want {genre} with a {mood} feel.")
-        else:
-            print(f"I heard you want {genre}.")
-        if discovery_requested:
-            print("Discovery mode is on. I'll include one extra pick for you! I chose a target for you btw.")
-        print("Here are the best matches I found:\n")
-        print(f"{'='*50}\n")
+        print()
 
-        recommendations = recommend_songs(user_prefs, songs, k=5)
+        recommendations = recommend_songs(user_prefs, songs, k=3)
         cluster_warning = detect_cluster_warning(recommendations)
         bridge_pick = (
             select_bridge_recommendation(user_prefs, songs, recommendations)

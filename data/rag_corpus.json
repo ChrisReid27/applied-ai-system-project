@@ -154,5 +154,89 @@
     "title": "Groovy Psychedelic Drift",
     "text": "Groovy psychedelic rock often uses trippy textures, circular rhythms, and mid-high energy while keeping a colorful, exploratory mood.",
     "tags": ["genre:psychedelic rock", "mood:groovy", "energy:midhigh", "valence:mid", "danceability:mid"]
+  },
+  {
+    "id": "doc-27",
+    "title": "Heartbroken Pop Release",
+    "text": "Heartbroken pop usually blends emotional vocals with mid energy and lower valence, creating a cathartic sing-along feel rather than a party mood.",
+    "tags": ["genre:pop", "mood:heartbroken", "mood:emotional", "energy:mid", "valence:lowmid", "danceability:mid"]
+  },
+  {
+    "id": "doc-28",
+    "title": "Emotional Pop Reflection",
+    "text": "Emotional pop tends to favor clear melodic focus, reflective tone, and moderate tempo with balanced energy for personal listening.",
+    "tags": ["genre:pop", "mood:emotional", "mood:reflective", "energy:mid", "valence:midlow", "tempo:mid"]
+  },
+  {
+    "id": "doc-29",
+    "title": "Melancholic R&B Warmth",
+    "text": "Melancholic R&B works with gentle groove, soft dynamics, and lower valence, keeping intimacy without becoming too sparse.",
+    "tags": ["genre:r&b", "mood:melancholic", "energy:lowmid", "valence:lowmid", "danceability:mid", "acousticness:mid"]
+  },
+  {
+    "id": "doc-30",
+    "title": "Soulful Country Grain",
+    "text": "Soulful country often combines storytelling vocals, warm instrumentation, and steady mid energy with grounded emotional color.",
+    "tags": ["genre:country", "mood:soulful", "energy:mid", "valence:mid", "acousticness:high"]
+  },
+  {
+    "id": "doc-31",
+    "title": "Introspective Hip Hop Lens",
+    "text": "Introspective hip hop favors thoughtful lyrics, restrained groove, and moderate energy, with less aggression and more reflective pacing.",
+    "tags": ["genre:hip hop", "mood:introspective", "mood:reflective", "energy:mid", "valence:midlow", "danceability:mid"]
+  },
+  {
+    "id": "doc-32",
+    "title": "Hypnotic Hip Hop Pulse",
+    "text": "Hypnotic hip hop typically leans into looping motifs, deep pocket rhythm, and steady mid-high groove for a locked-in head-nod effect.",
+    "tags": ["genre:hip hop", "mood:hypnotic", "energy:midhigh", "danceability:high", "valence:mid"]
+  },
+  {
+    "id": "doc-33",
+    "title": "Dark Rock Atmosphere",
+    "text": "Dark rock often pairs tense textures and heavier guitars with high energy and lower valence, prioritizing mood over brightness.",
+    "tags": ["genre:rock", "mood:dark", "energy:high", "valence:lowmid", "danceability:midlow"]
+  },
+  {
+    "id": "doc-34",
+    "title": "Epic Rock Lift",
+    "text": "Epic rock usually builds with wide dynamics, anthemic hooks, and high energy to create a cinematic, forward-driving feel.",
+    "tags": ["genre:rock", "mood:epic", "energy:high", "valence:mid", "danceability:mid"]
+  },
+  {
+    "id": "doc-35",
+    "title": "Heroic Metal Charge",
+    "text": "Heroic metal tends to keep very high energy and forceful momentum while lifting valence slightly above darker aggressive metal profiles.",
+    "tags": ["genre:metal", "mood:heroic", "energy:high", "valence:midlow", "danceability:low"]
+  },
+  {
+    "id": "doc-36",
+    "title": "Haunting Metal Weight",
+    "text": "Haunting metal often combines dense atmosphere and sustained tension with high energy but very low valence, emphasizing unease over release.",
+    "tags": ["genre:metal", "mood:haunting", "energy:high", "valence:low", "danceability:low"]
+  },
+  {
+    "id": "doc-37",
+    "title": "Dramatic Pop Arc",
+    "text": "Dramatic pop usually uses bold dynamic turns, emotional vocals, and mid-to-high energy to create a theatrical listening arc.",
+    "tags": ["genre:pop", "mood:dramatic", "mood:emotional", "energy:midhigh", "valence:mid", "danceability:mid"]
+  },
+  {
+    "id": "doc-38",
+    "title": "Quirky Pop Bounce",
+    "text": "Quirky pop thrives on offbeat phrasing, playful rhythm accents, and upbeat energy with bright, unconventional charm.",
+    "tags": ["genre:pop", "mood:quirky", "mood:playful", "energy:midhigh", "valence:high", "danceability:high"]
+  },
+  {
+    "id": "doc-39",
+    "title": "Summer Pop Glow",
+    "text": "Summer pop favors warm tone, buoyant groove, and positive valence with mid-high energy suited for open-air and daytime listening.",
+    "tags": ["genre:pop", "mood:summer", "mood:happy", "energy:midhigh", "valence:high", "danceability:high"]
+  },
+  {
+    "id": "doc-40",
+    "title": "Calm Ambient Drift",
+    "text": "Calm ambient listening works best with very low energy, high acoustic texture, and soft motion that supports concentration or rest.",
+    "tags": ["genre:ambient", "mood:calm", "mood:serene", "energy:low", "acousticness:high", "valence:mid"]
   }
 ]

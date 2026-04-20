@@ -1,94 +1,10 @@
 import csv
 from typing import List, Dict, Tuple, Optional
-from dataclasses import dataclass
 
-@dataclass
-class Song:
-    """
-    Represents a song and its attributes.
-    Required by tests/test_recommender.py
-    """
-    id: int
-    title: str
-    artist: str
-    genre: str
-    mood: str
-    energy: float
-    tempo_bpm: float
-    valence: float
-    danceability: float
-    acousticness: float
-
-@dataclass
-class UserProfile:
-    """
-    Represents a user's taste preferences.
-    Required by tests/test_recommender.py
-    """
-    favorite_genre: str
-    favorite_mood: str
-    target_energy: float
-    likes_acoustic: bool
-
-class Recommender:
-    """
-    OOP implementation of the recommendation logic.
-    Required by tests/test_recommender.py
-    """
-    def __init__(self, songs: List[Song]):
-        self.songs = songs
-
-    @staticmethod
-    def _clamp01(value: float) -> float:
-        return max(0.0, min(1.0, value))
-
-    def _score_song(self, user: UserProfile, song: Song) -> Tuple[float, List[str]]:
-        score = 0.0
-        reasons: List[str] = []
-
-        if song.genre == user.favorite_genre:
-            score += 1.0
-            reasons.append("it matches the genre you asked for (+1.0)")
-        else:
-            reasons.append("the genre is a little different (+0.0)")
-
-        if song.mood == user.favorite_mood:
-            score += 2.5
-            reasons.append("the mood lines up with what you want (+2.5)")
-        else:
-            reasons.append("the mood is not an exact match (+0.0)")
-
-        energy_similarity = self._clamp01(1.0 - abs(song.energy - user.target_energy))
-        energy_points = 3.0 * energy_similarity
-        score += energy_points
-        reasons.append(f"it is close to your target energy ({energy_similarity:.2f}, +{energy_points:.2f})")
-
-        acoustic_target = 0.8 if user.likes_acoustic else 0.2
-        acoustic_similarity = self._clamp01(1.0 - abs(song.acousticness - acoustic_target))
-        acoustic_points = 0.5 * acoustic_similarity
-        score += acoustic_points
-        reasons.append(f"the acoustic feel also fits ({acoustic_similarity:.2f}, +{acoustic_points:.2f})")
-
-        return score, reasons
-
-    def recommend(self, user: UserProfile, k: int = 5) -> List[Song]:
-        ranked = sorted(
-            self.songs,
-            key=lambda song: self._score_song(user, song)[0],
-            reverse=True,
-        )
-        return ranked[:k]
-
-    def explain_recommendation(self, user: UserProfile, song: Song) -> str:
-        score, reasons = self._score_song(user, song)
-        primary_reason = reasons[0] if reasons else "it is a reasonable match"
-        extra_reason = f" Also, {reasons[1].rstrip('.')}." if len(reasons) > 1 else ""
-        return f"This song scores {score:.2f} because {primary_reason}.{extra_reason}"
 
 def load_songs(csv_path: str) -> List[Dict]:
     """
-    Loads songs from a CSV file.
-    Required by src/main.py
+    Loads songs from a CSV file and normalizes numeric fields.
     """
     songs: List[Dict] = []
     numeric_converters = {
@@ -103,7 +19,6 @@ def load_songs(csv_path: str) -> List[Dict]:
     with open(csv_path, mode="r", encoding="utf-8", newline="") as file:
         reader = csv.DictReader(file)
         for row in reader:
-            # Normalize whitespace so CSV edits do not create accidental mismatches.
             song = {
                 key: (value.strip() if isinstance(value, str) else value)
                 for key, value in dict(row).items()
@@ -114,6 +29,7 @@ def load_songs(csv_path: str) -> List[Dict]:
             songs.append(song)
 
     return songs
+
 
 def _clamp01(value: float) -> float:
     """Clamp a value to the range [0.0, 1.0]."""
@@ -188,10 +104,9 @@ def _score_song_dict(
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, List[str]]]:
     """
-    Functional implementation of the recommendation logic.
-    Required by src/main.py
+    Scores songs based on user preferences and returns top-k recommendations.
+    Explanations are grounded in the RAG corpus via build_grounded_explanation().
     """
-    # Backward-compatibility with profile style used by the OOP API.
     if "acousticness" not in user_prefs and "likes_acoustic" in user_prefs:
         user_prefs = dict(user_prefs)
         user_prefs["acousticness"] = 0.8 if bool(user_prefs["likes_acoustic"]) else 0.2

@@ -725,6 +725,32 @@ def select_bridge_recommendation(
     return best_song, best_score, best_reasons
 
 
+def _extract_relevant_insight(doc: RagDocument, song: Dict, reasons: Sequence[str]) -> str:
+    """Extract a relevant insight from a document to enhance the explanation."""
+    doc_text = doc.text.lower()
+    song_mood = str(song.get("mood", "")).lower()
+    song_genre = str(song.get("genre", "")).lower()
+    
+    # Check if the document contains context relevant to the song's mood or genre
+    if song_mood and song_mood in doc_text:
+        # Extract the sentence containing the mood
+        sentences = doc.text.split(". ")
+        for sentence in sentences:
+            if song_mood in sentence.lower():
+                return sentence.strip()
+    
+    if song_genre and song_genre in doc_text:
+        # Extract the sentence containing the genre
+        sentences = doc.text.split(". ")
+        for sentence in sentences:
+            if song_genre in sentence.lower():
+                return sentence.strip()
+    
+    # If no specific match, return the first substantive sentence
+    sentences = [s.strip() for s in doc.text.split(". ") if len(s.strip()) > 10]
+    return sentences[0] if sentences else ""
+
+
 def build_grounded_explanation(
     song: Dict,
     score: float,
@@ -732,55 +758,9 @@ def build_grounded_explanation(
     retrieved_docs: Sequence[RagDocument],
     rank: Optional[int] = None,
 ) -> str:
-    if rank is not None and 3 <= rank <= 5:
-        mood = str(song.get("mood", "unknown"))
-        valence_raw = song.get("valence")
-        try:
-            valence = f"{float(valence_raw):.2f}"
-        except (TypeError, ValueError):
-            valence = "unknown"
-
-        grounded_by = retrieved_docs[0].title if retrieved_docs else "none"
-        return (
-            "Song rec reasoning: "
-            f"[mood: {mood}, valence: {valence}, grounded by: {grounded_by}] "
-            "Could be worth a listen?"
-        )
-
-    if not reasons:
-        intro = "This is a strong fit."
-    else:
-        main_reason = reasons[0].rstrip(".")
-        if rank == 1:
-            intro = f"Your top choice! It's because {main_reason}."
-        elif rank == 2:
-            mood_reason = next(
-                (reason for reason in reasons if "mood lines up" in reason or "mood is not an exact match" in reason),
-                "",
-            )
-            mood_match_text = "is a match"
-            if "mood is not an exact match" in mood_reason:
-                mood_match_text = "is not an exact match"
-
-            valence_reason = next(
-                (reason.rstrip(".") for reason in reasons if "valence is close" in reason),
-                "the valence is close to what you seem to want to hear right now",
-            )
-            intro = (
-                "This could also be a good fit for you; "
-                f"the mood {mood_match_text} while {valence_reason}."
-            )
-        else:
-            intro = f"This is a pretty strong fit because {main_reason}."
-        if len(reasons) > 1:
-            if rank == 2:
-                pass
-            else:
-                intro += f" Also, {reasons[1].rstrip('.')}"
-                intro += "."
-
     if not retrieved_docs:
-        return intro + f" (Score {score:.2f}.)"
-
-    top_title = retrieved_docs[0].title
-    return intro + f" Grounded by: {top_title}."
+        return ""
+    
+    # Extract and return the document insight
+    doc_insight = _extract_relevant_insight(retrieved_docs[0], song, reasons)
+    return doc_insight if doc_insight else ""
