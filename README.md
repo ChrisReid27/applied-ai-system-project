@@ -68,3 +68,13 @@ Testing snapshot:
 
 ## Reflection:
 It taught me a lot about RAG implementation. The data you give or allow the system to access is all it can work with. I had to broaden my JSON to have more coverage multiple times. Agentic A.I. is really helpful for cleaning up redundancies in code which is another thing I had to deal with. I also understood by the end of this project that for systems like this problems are usually connected and even when they aren't, the fixes very easily can cause small or larger problems elesewhere.
+
+## Screenshot Demo Walkthrough
+**Input 1: Standard User Interaction:**
+![alt text](<assets/Screenshot 2026-04-19 224122.png>)
+
+**Input 2: Prompt for Clarification:**
+![alt text](<assets/Screenshot 2026-04-19 224209.png>)
+
+**Input 3: Discovery Mode:**
+![alt text](<assets/Screenshot 2026-04-19 224250.png>)

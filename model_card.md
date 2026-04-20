@@ -33,3 +33,8 @@
 - **Where A.I. Helped:** It definitely helped me when it suggested making a full list of synonyms and general aliasing for words so that when users input something, the model wouldn't get stuck up on that.
 - **Where it didn't help:** It was suggesting just printing the values for valence, energy, etc. into premade responses which wasn't the goal of the system. I needed it to respond back to what the user put in with natural language and actually use what the user put in as context.
 - **Overall** I collaborated well with A.I. since it obviously made things go faster. I had a lot of different ways I thought of doing this project and it helped me narrow down to which ones were manageable and actually maintainable.
+
+---
+
+## Reflection: What this project says about me as an AI engineer.
+This project made me understand so much more about how LLM work, specifically models using RAG. I think as and AI engineer I'm very comfortable with the concepts surrounding RAG. I also think I'm more careful now when coding. Working in codebases where there are som many moving parts feels more natural to me now, especially with the help of A.I. to stay organized and catch any discrepancies, which I had a lot of. I made a lot of small mistakes that A.I. helped me fix. So overall I think I've grown as an engineer who has now gotten more comfortable with some of the inner workings of these types of models and gotten better at using them too.
