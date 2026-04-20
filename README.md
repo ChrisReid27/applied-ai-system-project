@@ -2,7 +2,7 @@
 
 ## Original Project Summary
 
-The original project was a music recommender simulation that ranks songs based on a user's taste profile. It scored songs using genre, mood, energy, tempo, valence, danceability, and acousticness. It used weighted similarity, then returned the top recommendations with score explanations so the ranking wass easy to understand. There were tests for multiple user profiles, including conflicting and edge-case preferences, to check where the recommender worked well and where biases appeared.
+The original project was a music recommender simulation that ranks songs based on a user's taste profile. It scored songs using genre, mood, energy, tempo, valence, danceability, and acousticness. It used weighted similarity, then returned the top recommendations with score explanations so the ranking was easy to understand. There were tests for multiple user profiles, including conflicting and edge-case preferences, to check where the recommender worked well and where biases appeared.
 
 ---
 
